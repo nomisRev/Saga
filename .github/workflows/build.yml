@@ -1,4 +1,4 @@
-name: "Run test JS"
+name: "Build"
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     env:
-      BASEDIR: ${{github.workspace}}/arrow-libs
       JAVA_OPTS: -Xms512m -Xmx1024m
 
     runs-on: ubuntu-latest
@@ -20,5 +19,4 @@ jobs:
           fetch-depth: 0
 
       - name: Build
-        working-directory: arrow-libs
         run: ./gradlew build
