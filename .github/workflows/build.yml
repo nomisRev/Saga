@@ -1,0 +1,24 @@
+name: "Run test JS"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    env:
+      BASEDIR: ${{github.workspace}}/arrow-libs
+      JAVA_OPTS: -Xms512m -Xmx1024m
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        working-directory: arrow-libs
+        run: ./gradlew build
