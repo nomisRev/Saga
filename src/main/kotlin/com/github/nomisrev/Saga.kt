@@ -65,10 +65,7 @@ sealed interface Saga<A> {
 
     infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
         when (this) {
-            is Builder -> Full(action) { a ->
-                compensate(a)
-                this.compensation()
-            }
+            is Builder -> Full({ f(this) }, compensate)
             is Effect -> saga {
                 saga { f(this) }.compensate(compensate).bind()
             }
@@ -83,22 +80,25 @@ sealed interface Saga<A> {
         when (this) {
             is Effect -> saga(f).transact()
             is Full -> saga { bind() }.transact()
-            is Part -> action()
+            is Part -> saga { action(this) }.transact()
             is Builder -> _transact()
         }
 
     @JvmInline
-    value class Part<A>(val action: suspend () -> A) : Saga<A> {
+    value class Part<A>(val action: suspend SagaEffect.() -> A) : Saga<A> {
         override infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> = Full(action, compensate)
     }
 
-    class Full<A>(val action: suspend () -> A, val compensation: suspend (A) -> Unit) : Saga<A>
+    class Full<A>(val action: suspend SagaEffect.() -> A, val compensation: suspend (A) -> Unit) : Saga<A>
 
-    class Builder<A>(val action: suspend () -> A, val compensation: suspend () -> Unit) : Saga<A> {
-        internal suspend fun _transact(): A = guaranteeCase(action) { exitCase ->
-            when (exitCase) {
-                is ExitCase.Completed -> Unit
-                else -> compensation()
+    class Builder<A>(val f: suspend SagaEffect.() -> A) : Saga<A> {
+        internal suspend fun _transact(): A {
+            val builder = SagaBuilder()
+            return guaranteeCase({ f(builder) }) { exitCase ->
+                when (exitCase) {
+                    is ExitCase.Completed -> Unit
+                    else -> builder.totalCompensation()
+                }
             }
         }
     }
@@ -109,16 +109,10 @@ sealed interface Saga<A> {
 
 interface SagaEffect {
     suspend fun <A> Saga<A>.bind(): A
-    fun <A> saga(action: suspend () -> A): Saga.Part<A> = Saga.Part(action)
+    fun <A> saga(action: suspend SagaEffect.() -> A): Saga.Part<A> = Saga.Part(action)
 }
 
-inline fun <A> saga(crossinline f: suspend SagaEffect.() -> A): Saga<A> {
-    val builder = SagaBuilder()
-    return Saga.Builder(
-        action = { f(builder) },
-        compensation = { builder.totalCompensation() }
-    )
-}
+fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga.Builder(block)
 
 @PublishedApi
 internal class SagaBuilder(private val stack: AtomicReference<List<suspend () -> Unit>> = AtomicReference(emptyList())) :
@@ -133,7 +127,7 @@ internal class SagaBuilder(private val stack: AtomicReference<List<suspend () ->
         }
 
     private suspend fun <A> Saga.Full<A>.bind() =
-        guaranteeCase(action) { exitCase ->
+        guaranteeCase({ action() }) { exitCase ->
             when (exitCase) {
                 is ExitCase.Completed<A> -> stack.updateAndGet { suspend { compensation(exitCase.value) } prependTo it }
                 // This action failed so we have no compensate to push on the stack
@@ -144,15 +138,7 @@ internal class SagaBuilder(private val stack: AtomicReference<List<suspend () ->
         }
 
     private suspend fun <A> Saga.Builder<A>.bind() =
-        guaranteeCase(action) { exitCase ->
-            when (exitCase) {
-                is ExitCase.Completed<A> -> stack.updateAndGet { suspend { compensation() } prependTo it }
-                // This action failed so we have no compensate to push on the stack
-                // the compensate stack will run in the `transact` stage, this is just the builder
-                is ExitCase.Cancelled -> Unit
-                is ExitCase.Failure -> Unit
-            }
-        }
+        f(this@SagaBuilder)
 
     @PublishedApi
     internal suspend fun totalCompensation(): Unit {
