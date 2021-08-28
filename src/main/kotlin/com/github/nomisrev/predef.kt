@@ -23,6 +23,7 @@ sealed class ExitCase<out A> {
     data class Failure(val failure: Throwable) : ExitCase<Nothing>()
 }
 
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 suspend inline fun <A> guaranteeCase(
     fa: suspend () -> A,
     crossinline finalizer: suspend (ExitCase<A>) -> Unit
