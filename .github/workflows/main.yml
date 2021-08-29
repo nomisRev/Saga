@@ -36,7 +36,7 @@ jobs:
         continue-on-error: true
         run: |
           ./gradlew dokkaGfm --scan
-          exit $(git diff --exit-code | wc -c)
+          exit $((git status --porcelain | wc -c)
 
       - name: Commit Changes
         if: steps.Dokka.outcome == 'failure'
