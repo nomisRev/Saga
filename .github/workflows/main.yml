@@ -36,6 +36,7 @@ jobs:
         continue-on-error: true
         run: |
           ./gradlew dokkaHtml --scan
+          git status
           exit $((git status --porcelain | wc -c)
 
       - name: Commit Changes
