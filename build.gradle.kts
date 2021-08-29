@@ -1,5 +1,9 @@
+import org.jetbrains.dokka.gradle.DokkaTask
+import java.net.URL
+
 plugins {
     kotlin("jvm") version "1.5.30"
+    id("org.jetbrains.dokka") version "1.5.0"
 }
 
 group = "org.example"
@@ -23,4 +27,18 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.withType<DokkaTask>().configureEach {
+    dokkaSourceSets {
+        named("main") {
+            moduleName.set("Saga")
+//            includes.from("README.md")
+            sourceLink {
+                localDirectory.set(file("src/main/kotlin"))
+                remoteUrl.set(uri("https://github.com/nomsRev/Saga/tree/master/src/main/kotlin").toURL())
+                remoteLineSuffix.set("#L")
+            }
+        }
+    }
 }
