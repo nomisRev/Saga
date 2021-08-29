@@ -1,5 +1,5 @@
 @file:Suppress("UNUSED", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-package com.github.nomisrev
+package io.github.nomisrev
 
 import arrow.core.Either
 import arrow.fx.coroutines.nonFatalOrThrow

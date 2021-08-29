@@ -1,4 +1,4 @@
-package com.github.nomisrev
+package io.github.nomisrev
 
 import arrow.core.nonFatalOrThrow
 import arrow.core.prependTo

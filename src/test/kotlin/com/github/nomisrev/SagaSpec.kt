@@ -2,6 +2,7 @@
 
 package com.github.nomisrev
 
+import io.github.nomisrev.saga
 import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
