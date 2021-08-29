@@ -57,3 +57,4 @@ jobs:
           git add docs
           git commit -m "automatically update documentation"
           git push
+

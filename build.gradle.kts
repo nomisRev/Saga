@@ -100,8 +100,8 @@ publishing {
     repositories {
         maven {
             credentials {
-                username = System.getProperty("SONATYPE_USER")
-                password = System.getProperty("SONATYPE_PWD")
+                username = System.getenv("SONATYPE_USER")
+                password = System.getenv("SONATYPE_PWD")
             }
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
         }
