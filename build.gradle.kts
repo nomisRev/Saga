@@ -43,14 +43,6 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
-tasks.clean.configure {
-    doFirst {
-        file("docs").listFiles()
-            .filterNot { it.name == "_config.yml" }
-            .forEach { delete(it.path) }
-    }
-}
-
 group = "io.github.nomisrev"
 version = "0.1.0-SNAPSHOT"
 
