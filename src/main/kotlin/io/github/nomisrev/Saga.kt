@@ -3,6 +3,7 @@ package io.github.nomisrev
 import arrow.core.nonFatalOrThrow
 import arrow.core.prependTo
 import arrow.fx.coroutines.Platform
+import arrow.fx.coroutines.parTraverse
 import arrow.fx.coroutines.parZip
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.CoroutineContext
@@ -63,6 +64,86 @@ sealed interface Saga<A> {
         parZip(ctx, { bind() }, { other.bind() }, f)
     }
 
+    fun <B, C, D> parZip(
+        ctx: CoroutineContext,
+        b: Saga<B>,
+        c: Saga<C>,
+        f: suspend CoroutineScope.(A, B, C) -> D
+    ): Saga<D> = saga {
+        parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, f)
+    }
+
+    fun <B, C, D, E> parZip(
+        ctx: CoroutineContext,
+        b: Saga<B>,
+        c: Saga<C>,
+        d: Saga<D>,
+        f: suspend CoroutineScope.(A, B, C, D) -> E
+    ): Saga<E> = saga {
+        parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, f)
+    }
+
+    fun <B, C, D, E, F> parZip(
+        ctx: CoroutineContext,
+        b: Saga<B>,
+        c: Saga<C>,
+        d: Saga<D>,
+        e: Saga<E>,
+        f: suspend CoroutineScope.(A, B, C, D, E) -> F
+    ): Saga<F> = saga {
+        parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, f)
+    }
+
+    fun <B, C, D, E, F, G> parZip(
+        ctx: CoroutineContext,
+        b: Saga<B>,
+        c: Saga<C>,
+        d: Saga<D>,
+        e: Saga<E>,
+        ff: Saga<F>,
+        f: suspend CoroutineScope.(A, B, C, D, E, F) -> G
+    ): Saga<G> = saga {
+        parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, { ff.bind() }, f)
+    }
+
+    fun <B, C, D, E, F, G, H> parZip(
+        ctx: CoroutineContext,
+        b: Saga<B>,
+        c: Saga<C>,
+        d: Saga<D>,
+        e: Saga<E>,
+        ff: Saga<F>,
+        g: Saga<G>,
+        f: suspend CoroutineScope.(A, B, C, D, E, F, G) -> H
+    ): Saga<H> = saga {
+        parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, { ff.bind() }, { g.bind() }, f)
+    }
+
+    fun <B, C, D, E, F, G, H, I> parZip(
+        ctx: CoroutineContext,
+        b: Saga<B>,
+        c: Saga<C>,
+        d: Saga<D>,
+        e: Saga<E>,
+        ff: Saga<F>,
+        g: Saga<G>,
+        h: Saga<H>,
+        f: suspend CoroutineScope.(A, B, C, D, E, F, G, H) -> I
+    ): Saga<I> = saga {
+        parZip(
+            ctx,
+            { bind() },
+            { b.bind() },
+            { c.bind() },
+            { d.bind() },
+            { e.bind() },
+            { ff.bind() },
+            { g.bind() },
+            { h.bind() },
+            f
+        )
+    }
+
     infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
         when (this) {
             is Builder -> Full({ f(this) }, compensate)
@@ -106,6 +187,25 @@ sealed interface Saga<A> {
     class Effect<A>(val f: suspend SagaEffect.() -> A) : Saga<A>
 
 }
+
+fun <A, B> Iterable<A>.traverseSaga(f: (A) -> Saga<B>): Saga<List<B>> =
+    if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+    else saga { map { f(it).bind() } }
+
+fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
+    if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+    else saga { map { it.bind() } }
+
+fun <A, B> Iterable<A>.parTraverseSaga(f: (A) -> Saga<B>): Saga<List<B>> =
+    parTraverseSaga(Dispatchers.Default, f)
+
+fun <A, B> Iterable<A>.parTraverseSaga(ctx: CoroutineContext, f: (A) -> Saga<B>): Saga<List<B>> =
+    if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+    else saga { parTraverse(ctx) { f(it).bind() } }
+
+fun <A> Iterable<Saga<A>>.parSequence(ctx: CoroutineContext = Dispatchers.Default): Saga<List<A>> =
+    if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+    else saga { parTraverse(ctx) { it.bind() } }
 
 interface SagaEffect {
     suspend fun <A> Saga<A>.bind(): A

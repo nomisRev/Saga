@@ -1,5 +1,4 @@
 @file:Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
-
 package io.github.nomisrev
 
 import io.kotest.assertions.fail
@@ -9,6 +8,7 @@ import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int
+import io.kotest.property.arbitrary.list
 import io.kotest.property.checkAll
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
@@ -94,6 +94,36 @@ class SagaSpec : StringSpec({
             res shouldBe original
             res.suppressed[0] shouldBe compensation
             compensationA.await() shouldBeExactly a
+        }
+    }
+
+    "Saga can traverse" {
+        checkAll(Arb.list(Arb.int())) { ints ->
+            ints.traverseSaga { saga { it }.compensate { fail("Doesn't run") } }
+                .transact() shouldBe ints
+        }
+    }
+
+    "Saga can sequence" {
+        checkAll(Arb.list(Arb.int())) { ints ->
+            ints.map { saga { it }.compensate { fail("Doesn't run") } }
+                .sequence()
+                .transact() shouldBe ints
+        }
+    }
+
+    "Saga can parTraverse" {
+        checkAll(Arb.list(Arb.int())) { ints ->
+            ints.parTraverseSaga { saga { it }.compensate { fail("Doesn't run") } }
+                .transact() shouldBe ints
+        }
+    }
+
+    "Saga can parSequence" {
+        checkAll(Arb.list(Arb.int())) { ints ->
+            ints.map { saga { it }.compensate { fail("Doesn't run") } }
+                .parSequence()
+                .transact() shouldBe ints
         }
     }
 
