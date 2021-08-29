@@ -1,5 +1,4 @@
 import org.jetbrains.dokka.gradle.DokkaTask
-import java.net.URL
 
 plugins {
     kotlin("jvm") version "1.5.30"
@@ -30,6 +29,7 @@ tasks.withType<Test> {
 }
 
 tasks.withType<DokkaTask>().configureEach {
+    outputDirectory.set(rootDir.resolve("docs"))
     dokkaSourceSets {
         named("main") {
             moduleName.set("Saga")
@@ -40,5 +40,13 @@ tasks.withType<DokkaTask>().configureEach {
                 remoteLineSuffix.set("#L")
             }
         }
+    }
+}
+
+tasks.clean.configure {
+    doFirst {
+        file("docs").listFiles()
+            .filterNot { it.name == "_config.yml" }
+            .forEach { delete(it.path) }
     }
 }

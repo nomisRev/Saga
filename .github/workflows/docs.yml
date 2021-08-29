@@ -1,0 +1,29 @@
+name: Generate Docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Dokka
+        id: Dokka
+        continue-on-error: true
+        run: |
+          ./gradlew dokkaGfm
+          exit $(git diff --exit-code | wc -c)
+      - name: Commit Changes
+        if: steps.Dokka.outcome == 'failure'
+        run: |
+          git config --global user.name 'AutoDocAction'
+          git config --global user.email 'AudoDocAction@no-reply.com'
+          git add /docs
+          git commit -m "automatically update documentation"
+          git push
