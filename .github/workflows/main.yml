@@ -1,11 +1,30 @@
-name: Generate Docs
+name: "Build main"
 
 on:
   push:
     branches:
       - main
 
+env:
+  JAVA_OPTS: -Xms512m -Xmx1024m
+  GRADLE_OPTS: "--scan -Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+
+
 jobs:
+  build:
+    env:
+      JAVA_OPTS: -Xms512m -Xmx1024m
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: ./gradlew build
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -19,6 +38,7 @@ jobs:
         run: |
           ./gradlew dokkaGfm
           exit $(git diff --exit-code | wc -c)
+
       - name: Commit Changes
         if: steps.Dokka.outcome == 'failure'
         run: |
@@ -27,3 +47,4 @@ jobs:
           git add /docs
           git commit -m "automatically update documentation"
           git push
+
