@@ -7,8 +7,7 @@ on:
 
 env:
   JAVA_OPTS: -Xms512m -Xmx1024m
-  GRADLE_OPTS: "--scan -Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
-
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 jobs:
   build:
@@ -24,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew build --scan
   docs:
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +35,7 @@ jobs:
         id: Dokka
         continue-on-error: true
         run: |
-          ./gradlew dokkaGfm
+          ./gradlew dokkaGfm --scan
           exit $(git diff --exit-code | wc -c)
 
       - name: Commit Changes
@@ -47,4 +46,3 @@ jobs:
           git add /docs
           git commit -m "automatically update documentation"
           git push
-
