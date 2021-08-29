@@ -22,6 +22,11 @@ jobs:
       - name: Build
         run: ./gradlew test --scan
   publish:
+
+    env:
+      SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+      SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
