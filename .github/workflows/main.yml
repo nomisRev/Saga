@@ -46,10 +46,11 @@ jobs:
         continue-on-error: true
         run: |
           ./gradlew dokkaHtml --scan
-          git status
-          exit $((git status --porcelain | wc -c)
+          git status --porcelain
+          exit $(git status --porcelain | wc -c)
 
       - name: Commit Changes
+        continue-on-error: true
         if: steps.Dokka.outcome == 'failure'
         run: |
           git config --global user.name 'AutoDocAction'
