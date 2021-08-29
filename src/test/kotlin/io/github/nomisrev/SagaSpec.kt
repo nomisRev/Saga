@@ -1,8 +1,7 @@
 @file:Suppress("IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION")
 
-package com.github.nomisrev
+package io.github.nomisrev
 
-import io.github.nomisrev.saga
 import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec

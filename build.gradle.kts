@@ -51,7 +51,7 @@ tasks.clean.configure {
     }
 }
 
-group = "com.github.nomisrev"
+group = "io.github.nomisrev"
 version = "0.1.0-SNAPSHOT"
 
 val pomDevId = "nomisRev"
