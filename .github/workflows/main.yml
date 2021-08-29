@@ -43,6 +43,6 @@ jobs:
         run: |
           git config --global user.name 'AutoDocAction'
           git config --global user.email 'AudoDocAction@no-reply.com'
-          git add /docs
+          git add docs
           git commit -m "automatically update documentation"
           git push
