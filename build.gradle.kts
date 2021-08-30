@@ -60,8 +60,8 @@ val snapshotRepo = uri("https://oss.sonatype.org/content/repositories/snapshots/
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            version = project.version.toString()
+            groupId = "io.github.nomisrev"
+            version = "0.1.0-SNAPSHOT"
             artifactId = "saga"
 
             from(components["java"])

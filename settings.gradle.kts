@@ -1,4 +1,4 @@
-rootProject.name = "Saga"
+rootProject.name = "saga"
 
 plugins {
     id("com.gradle.enterprise") version "3.6.1"
