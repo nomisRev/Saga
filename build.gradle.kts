@@ -1,4 +1,5 @@
 import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.5.30"
@@ -9,7 +10,7 @@ plugins {
 }
 
 group = "io.github.nomisrev"
-version = "0.1.0"
+version = "0.1.1"
 
 repositories {
     mavenCentral()
@@ -47,6 +48,12 @@ tasks.withType<DokkaTask>().configureEach {
                 remoteLineSuffix.set("#L")
             }
         }
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
@@ -104,8 +111,8 @@ afterEvaluate {
                     }
                     developers {
                         developer {
-                            id.set("nomisrev")
-                            name.set("Simon Vergauwen")
+                            id.set(pomDevId)
+                            name.set(pomDevName)
                         }
                     }
                 }
@@ -124,7 +131,6 @@ afterEvaluate {
         }
 
         Nullable.zip(System.getenv("SIGNINGKEY"), System.getenv("SIGNINGPASSWORD")) { key, pass ->
-            println("################################## SIGNING THE CODE")
             signing {
                 useInMemoryPgpKeys(key, pass)
                 sign(publishing.publications["mavenJava"])
