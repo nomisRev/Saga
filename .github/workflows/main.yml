@@ -39,6 +39,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      -  name: Setup JDK
+         uses: actions/setup-java@v1
+         with:
+           java-version: '8'
+
       - name: Build
         run: ./gradlew publish --scan --stacktrace
   docs:
