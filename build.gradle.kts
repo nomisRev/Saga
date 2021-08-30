@@ -50,17 +50,17 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
+//java {
+//    withSourcesJar()
+//    withJavadocJar()
+//}
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar by tasks.getting(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
 }
 
-val javadocJar by tasks.registering(Jar::class) {
+val javadocJar by tasks.getting(Jar::class) {
     dependsOn.add(tasks.javadoc)
     archiveClassifier.set("javadoc")
     from(tasks.javadoc)
@@ -84,8 +84,8 @@ publishing {
             version = version.toString()
             artifactId = "saga"
 
-            artifact(sourcesJar.get())
-            artifact(javadocJar.get())
+            artifact(sourcesJar)
+            artifact(javadocJar)
             from(components["java"])
 
             pom {
