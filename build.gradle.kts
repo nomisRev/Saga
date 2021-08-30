@@ -55,90 +55,99 @@ tasks.withType<DokkaTask>().configureEach {
 //    withJavadocJar()
 //}
 
-val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
-}
+afterEvaluate {
+    val sourcesJar by tasks.creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(sourceSets.main.get().allSource)
+    }
 
-val javadocJar by tasks.creating(Jar::class) {
-    dependsOn.add(tasks.javadoc)
-    archiveClassifier.set("javadoc")
-    from(tasks.javadoc)
-}
+    val javadocJar by tasks.creating(Jar::class) {
+        dependsOn.add(tasks.javadoc)
+        archiveClassifier.set("javadoc")
+        from(tasks.javadoc)
+    }
 
-artifacts {
-    archives(sourcesJar)
-    archives(javadocJar)
-    archives(tasks.jar)
-}
+    artifacts {
+        archives(sourcesJar)
+        archives(javadocJar)
+        archives(tasks.jar)
+    }
 
-val pomDevId = "nomisrev"
-val pomDevName = "Simon Vergauwen"
-val releaseRepo = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-val snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+    val pomDevId = "nomisrev"
+    val pomDevName = "Simon Vergauwen"
+    val releaseRepo = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+    val snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = group.toString()
-            version = version.toString()
-            artifactId = "saga"
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = group.toString()
+                version = version.toString()
+                artifactId = "saga"
 
-            artifact(sourcesJar)
-            artifact(javadocJar)
-            from(components["java"])
+                artifact(sourcesJar)
+                artifact(javadocJar)
+                from(components["java"])
 
-            pom {
-                name.set("Saga")
-                packaging = "jar"
-                description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
-                url.set("https://github.com/nomisrev/Saga")
-
-                scm {
+                pom {
+                    name.set("Saga")
+                    packaging = "jar"
+                    description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
                     url.set("https://github.com/nomisrev/Saga")
-                    connection.set("scm:git:git://github.com/nomisrev/Saga.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
-                }
-                licenses {
-                    license {
-                        name.set("The Apache Software License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        distribution.set("repo")
+
+                    scm {
+                        url.set("https://github.com/nomisrev/Saga")
+                        connection.set("scm:git:git://github.com/nomisrev/Saga.git")
+                        developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
                     }
-                }
-                developers {
-                    developer {
-                        id.set("nomisrev")
-                        name.set("Simon Vergauwen")
+                    licenses {
+                        license {
+                            name.set("The Apache Software License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            distribution.set("repo")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("nomisrev")
+                            name.set("Simon Vergauwen")
+                        }
                     }
                 }
             }
-        }
 
-    }
-    repositories {
-        maven {
-            credentials {
-                username = System.getenv("SONATYPE_USER")
-                password = System.getenv("SONATYPE_PWD")
+        }
+        repositories {
+            maven {
+                credentials {
+                    username = System.getenv("SONATYPE_USER")
+                    password = System.getenv("SONATYPE_PWD")
+                }
+
+                url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
             }
-
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
         }
-    }
 
-    // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
-    if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
-        println("""
+        println("#########################################################################")
+        println("Has SIGNINGKEY: ${project.hasProperty("SIGNINGKEY")}")
+        println("Has SIGNINGPASSWORD: ${project.hasProperty("SIGNINGPASSWORD")}")
+        println("#########################################################################")
+
+        // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
+        if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
+            println(
+                """
             ################################## SIGNING THE CODE 
-        """.trimIndent())
+        """.trimIndent()
+            )
 
-        signing {
-            val signingKey: String? by project
-            val signingPassword: String? by project
-            useInMemoryPgpKeys(signingKey, signingPassword)
+            signing {
+                val signingKey: String? by project
+                val signingPassword: String? by project
+                useInMemoryPgpKeys(signingKey, signingPassword)
 
-            sign(publishing.publications["mavenJava"])
+                sign(publishing.publications["mavenJava"])
+            }
         }
     }
 }
