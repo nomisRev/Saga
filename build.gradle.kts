@@ -43,6 +43,11 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 group = "io.github.nomisrev"
 version = "0.1.0-SNAPSHOT"
 
@@ -59,7 +64,7 @@ publishing {
             version = project.version.toString()
             artifactId = "saga"
 
-            from(components.getByName("java"))
+            from(components["java"])
 
             pom {
                 name.set("Saga")
@@ -96,6 +101,17 @@ publishing {
                 password = System.getenv("SONATYPE_PWD")
             }
             url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
+        }
+    }
+
+    // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
+    if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
+        signing {
+            val signingKey: String? by project
+            val signingPassword: String? by project
+            useInMemoryPgpKeys(signingKey, signingPassword)
+
+            sign(publishing.publications["mavenJava"])
         }
     }
 }
