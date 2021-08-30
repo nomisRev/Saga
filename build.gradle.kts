@@ -51,7 +51,7 @@ java {
 group = "io.github.nomisrev"
 version = "0.1.0-SNAPSHOT"
 
-val pomDevId = "nomisRev"
+val pomDevId = "nomisrev"
 val pomDevName = "Simon Vergauwen"
 
 val releaseRepo = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
@@ -70,12 +70,12 @@ publishing {
                 name.set("Saga")
                 packaging = "jar"
                 description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
-                url.set("https://github.com/nomisRev/Saga")
+                url.set("https://github.com/nomisrev/Saga")
 
                 scm {
-                    url.set("https://github.com/nomisRev/Saga")
-                    connection.set("scm:git:git://github.com/nomisRev/Saga.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/nomisRev/Saga.git")
+                    url.set("https://github.com/nomisrev/Saga")
+                    connection.set("scm:git:git://github.com/nomisrev/Saga.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
                 }
                 licenses {
                     license {
@@ -86,7 +86,7 @@ publishing {
                 }
                 developers {
                     developer {
-                        id.set("nomisRev")
+                        id.set("nomisrev")
                         name.set("Simon Vergauwen")
                     }
                 }

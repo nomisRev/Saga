@@ -40,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build
-        run: ./gradlew publish --scan
+        run: ./gradlew publish --scan --stacktrace
   docs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
