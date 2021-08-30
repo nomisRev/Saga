@@ -50,9 +50,21 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
+val sourcesJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
+}
+
+val javadocJar by tasks.registering(Jar::class) {
+    dependsOn.add(tasks.javadoc)
+    archiveClassifier.set("javadoc")
+    from(tasks.javadoc)
+}
+
+artifacts {
+    archives(sourcesJar)
+    archives(javadocJar)
+    archives(tasks.jar)
 }
 
 val pomDevId = "nomisrev"
@@ -67,6 +79,8 @@ publishing {
             version = version.toString()
             artifactId = "saga"
 
+            artifact(sourcesJar.get())
+            artifact(javadocJar.get())
             from(components["java"])
 
             pom {
