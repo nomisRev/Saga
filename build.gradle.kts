@@ -3,9 +3,9 @@ import org.jetbrains.dokka.gradle.DokkaTask
 plugins {
     kotlin("jvm") version "1.5.30"
     id("org.jetbrains.dokka") version "1.5.0"
-    `java-library`
-    `maven-publish`
-    signing
+    id("java-library")
+    id("maven-publish")
+    id("signing")
 }
 
 group = "io.github.nomisrev"
@@ -75,7 +75,7 @@ afterEvaluate {
 
     publishing {
         publications {
-            create<MavenPublication>("maven") {
+            register("mavenJava", MavenPublication::class) {
                 groupId = group.toString()
                 version = version.toString()
                 artifactId = "saga"
@@ -110,7 +110,6 @@ afterEvaluate {
                     }
                 }
             }
-
         }
 
         repositories {
