@@ -50,6 +50,11 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.main.get().allSource)
@@ -124,6 +129,10 @@ publishing {
 
     // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
     if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
+        println("""
+            ################################## SIGNING THE CODE 
+        """.trimIndent())
+
         signing {
             val signingKey: String? by project
             val signingPassword: String? by project
