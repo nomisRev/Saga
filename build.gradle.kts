@@ -48,70 +48,73 @@ java {
     withJavadocJar()
 }
 
-group = "io.github.nomisrev"
-version = "0.1.0-SNAPSHOT"
-
+val versionName = "0.1.0-SNAPSHOT"
 val pomDevId = "nomisrev"
 val pomDevName = "Simon Vergauwen"
-
 val releaseRepo = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 val snapshotRepo = uri("https://oss.sonatype.org/content/repositories/snapshots/")
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "io.github.nomisrev"
-            version = "0.1.0-SNAPSHOT"
-            artifactId = "saga"
+group = "io.github.nomisrev"
+version = versionName
 
-            from(components["java"])
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "io.github.nomisrev"
+                version = "0.1.0-SNAPSHOT"
+                artifactId = "saga"
 
-            pom {
-                name.set("Saga")
-                packaging = "jar"
-                description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
-                url.set("https://github.com/nomisrev/Saga")
+                from(components["java"])
 
-                scm {
+                pom {
+                    name.set("Saga")
+                    packaging = "jar"
+                    description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
                     url.set("https://github.com/nomisrev/Saga")
-                    connection.set("scm:git:git://github.com/nomisrev/Saga.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
-                }
-                licenses {
-                    license {
-                        name.set("The Apache Software License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                        distribution.set("repo")
+
+                    scm {
+                        url.set("https://github.com/nomisrev/Saga")
+                        connection.set("scm:git:git://github.com/nomisrev/Saga.git")
+                        developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
                     }
-                }
-                developers {
-                    developer {
-                        id.set("nomisrev")
-                        name.set("Simon Vergauwen")
+                    licenses {
+                        license {
+                            name.set("The Apache Software License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            distribution.set("repo")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("nomisrev")
+                            name.set("Simon Vergauwen")
+                        }
                     }
                 }
             }
-        }
 
-    }
-    repositories {
-        maven {
-            credentials {
-                username = System.getenv("SONATYPE_USER")
-                password = System.getenv("SONATYPE_PWD")
+        }
+        repositories {
+            maven {
+                credentials {
+                    username = System.getenv("SONATYPE_USER")
+                    password = System.getenv("SONATYPE_PWD")
+                }
+
+                url = if (versionName.endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
             }
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
         }
-    }
 
-    // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
-    if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
-        signing {
-            val signingKey: String? by project
-            val signingPassword: String? by project
-            useInMemoryPgpKeys(signingKey, signingPassword)
+        // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
+        if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
+            signing {
+                val signingKey: String? by project
+                val signingPassword: String? by project
+                useInMemoryPgpKeys(signingKey, signingPassword)
 
-            sign(publishing.publications["mavenJava"])
+                sign(publishing.publications["mavenJava"])
+            }
         }
     }
 }
