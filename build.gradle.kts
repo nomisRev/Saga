@@ -3,9 +3,10 @@ import org.jetbrains.dokka.gradle.DokkaTask
 plugins {
     kotlin("jvm") version "1.5.30"
     id("org.jetbrains.dokka") version "1.5.0"
-    id("java-library")
-    id("maven-publish")
+    `java-library`
+    `maven-publish`
     signing
+    base
 }
 
 repositories {
@@ -53,6 +54,10 @@ val pomDevId = "nomisrev"
 val pomDevName = "Simon Vergauwen"
 val releaseRepo = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
 val snapshotRepo = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+
+base {
+    archivesName.set("saga")
+}
 
 group = "io.github.nomisrev"
 version = versionName
