@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.nomisrev"
-version = "0.1.3-SNAPSHOT"
+version = "0.1.2"
 
 repositories {
     mavenCentral()
