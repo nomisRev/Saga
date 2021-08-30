@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "io.github.nomisrev"
-version = "0.1.2-SNAPSHOT"
+version = "0.1.2"
 
 repositories {
     mavenCentral()
@@ -55,6 +55,8 @@ tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
 }
 
 afterEvaluate {
