@@ -34,6 +34,11 @@ tasks.withType<DokkaTask>().configureEach {
     outputDirectory.set(rootDir.resolve("docs"))
     dokkaSourceSets {
         named("main") {
+            perPackageOption {
+                matchingRegex.set(".*\\.internal.*") // will match all .internal packages and sub-packages
+                suppress.set(true)
+            }
+            skipDeprecated.set(true)
             moduleName.set("Saga")
             includes.from("README.md")
             sourceLink {

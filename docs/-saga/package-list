@@ -1,30 +1,15 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:io.github.nomisrev////PointingToDeclaration/-saga/io.github.nomisrev/index.html
-$dokka.location:io.github.nomisrev//guaranteeCase/#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])]#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.ExitCase[TypeParam(bounds=[kotlin.Any?])],kotlin.Unit]/PointingToDeclaration/-saga/io.github.nomisrev/guarantee-case.html
 $dokka.location:io.github.nomisrev//parSequence/kotlin.collections.Iterable[io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]#kotlin.coroutines.CoroutineContext/PointingToDeclaration/-saga/io.github.nomisrev/par-sequence.html
 $dokka.location:io.github.nomisrev//parTraverseSaga/kotlin.collections.Iterable[TypeParam(bounds=[kotlin.Any?])]#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/-saga/io.github.nomisrev/par-traverse-saga.html
 $dokka.location:io.github.nomisrev//parTraverseSaga/kotlin.collections.Iterable[TypeParam(bounds=[kotlin.Any?])]#kotlin.coroutines.CoroutineContext#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/-saga/io.github.nomisrev/par-traverse-saga.html
 $dokka.location:io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/-saga/io.github.nomisrev/saga.html
 $dokka.location:io.github.nomisrev//sequence/kotlin.collections.Iterable[io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]#/PointingToDeclaration/-saga/io.github.nomisrev/sequence.html
 $dokka.location:io.github.nomisrev//traverseSaga/kotlin.collections.Iterable[TypeParam(bounds=[kotlin.Any?])]#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/-saga/io.github.nomisrev/traverse-saga.html
-$dokka.location:io.github.nomisrev/ExitCase.Cancelled///PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-cancelled/index.html
-$dokka.location:io.github.nomisrev/ExitCase.Cancelled/Cancelled/#java.util.concurrent.CancellationException/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-cancelled/-cancelled.html
-$dokka.location:io.github.nomisrev/ExitCase.Cancelled/exception/#/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-cancelled/exception.html
-$dokka.location:io.github.nomisrev/ExitCase.Completed///PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-completed/index.html
-$dokka.location:io.github.nomisrev/ExitCase.Completed/Completed/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-completed/-completed.html
-$dokka.location:io.github.nomisrev/ExitCase.Completed/toString/#/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-completed/to-string.html
-$dokka.location:io.github.nomisrev/ExitCase.Completed/value/#/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-completed/value.html
-$dokka.location:io.github.nomisrev/ExitCase.Failure///PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-failure/index.html
-$dokka.location:io.github.nomisrev/ExitCase.Failure/Failure/#kotlin.Throwable/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-failure/-failure.html
-$dokka.location:io.github.nomisrev/ExitCase.Failure/failure/#/PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/-failure/failure.html
-$dokka.location:io.github.nomisrev/ExitCase///PointingToDeclaration/-saga/io.github.nomisrev/-exit-case/index.html
 $dokka.location:io.github.nomisrev/Saga.Builder///PointingToDeclaration/-saga/io.github.nomisrev/-saga/-builder/index.html
 $dokka.location:io.github.nomisrev/Saga.Builder/Builder/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/-saga/io.github.nomisrev/-saga/-builder/-builder.html
 $dokka.location:io.github.nomisrev/Saga.Builder/f/#/PointingToDeclaration/-saga/io.github.nomisrev/-saga/-builder/f.html
-$dokka.location:io.github.nomisrev/Saga.Effect///PointingToDeclaration/-saga/io.github.nomisrev/-saga/-effect/index.html
-$dokka.location:io.github.nomisrev/Saga.Effect/Effect/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/-saga/io.github.nomisrev/-saga/-effect/-effect.html
-$dokka.location:io.github.nomisrev/Saga.Effect/f/#/PointingToDeclaration/-saga/io.github.nomisrev/-saga/-effect/f.html
 $dokka.location:io.github.nomisrev/Saga.Full///PointingToDeclaration/-saga/io.github.nomisrev/-saga/-full/index.html
 $dokka.location:io.github.nomisrev/Saga.Full/Full/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]#kotlin.coroutines.SuspendFunction1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/-saga/io.github.nomisrev/-saga/-full/-full.html
 $dokka.location:io.github.nomisrev/Saga.Full/action/#/PointingToDeclaration/-saga/io.github.nomisrev/-saga/-full/action.html

@@ -13,7 +13,8 @@ internal fun <E, A> Either<E, A>.leftOrNull(): E? = when (this) {
     is Either.Right -> null
 }
 
-sealed class ExitCase<out A> {
+// TODO needs to be done in Arrow before 1.0.0
+internal sealed class ExitCase<out A> {
     data class Completed<A>(val value: A) : ExitCase<A>() {
         override fun toString(): String =
             "ExitCase.Completed"
@@ -23,8 +24,9 @@ sealed class ExitCase<out A> {
     data class Failure(val failure: Throwable) : ExitCase<Nothing>()
 }
 
+// TODO needs to be done in Arrow before 1.0.0
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
-suspend inline fun <A> guaranteeCase(
+internal suspend inline fun <A> guaranteeCase(
     fa: suspend () -> A,
     crossinline finalizer: suspend (ExitCase<A>) -> Unit
 ): A {
