@@ -44,7 +44,7 @@ tasks.withType<DokkaTask>().configureEach {
             includes.from("README.md")
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(uri("https://github.com/nomsRev/Saga/tree/master/src/main/kotlin").toURL())
+                remoteUrl.set(uri("https://github.com/nomisRev/Saga/tree/master/src/main/kotlin").toURL())
                 remoteLineSuffix.set("#L")
             }
         }
