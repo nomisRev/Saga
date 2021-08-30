@@ -44,5 +44,5 @@ suspend fun main() {
 // Deleting Payment(id=5753e9bb-248a-4385-8c9c-4a524e80c0f9, orderId=3a55ffab-a3f5-40a9-a2b3-681dc17b174e)
 // Deleting Order(id=3a55ffab-a3f5-40a9-a2b3-681dc17b174e, amount=100)
 // Exception in thread "main" java.lang.RuntimeException: Payment Failed
-//   at com.github.nomisrev.TestKt.awaitSuccess(test.kt:11)
+//   at io.github.nomisrev.TestKt.awaitSuccess(test.kt:11)
 ```

@@ -6,8 +6,10 @@ plugins {
     `java-library`
     `maven-publish`
     signing
-    base
 }
+
+group = "io.github.nomisrev"
+version = "0.1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -25,20 +27,22 @@ dependencies {
 }
 
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+tasks {
+    val test by getting(Test::class) {
+        useJUnitPlatform()
+    }
 
-tasks.withType<DokkaTask>().configureEach {
-    outputDirectory.set(rootDir.resolve("docs"))
-    dokkaSourceSets {
-        named("main") {
-            moduleName.set("Saga")
+    val dokka by getting(DokkaTask::class) {
+        outputDirectory.set(rootDir.resolve("docs"))
+        dokkaSourceSets {
+            named("main") {
+                moduleName.set("Saga")
 //            includes.from("README.md")
-            sourceLink {
-                localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(uri("https://github.com/nomsRev/Saga/tree/master/src/main/kotlin").toURL())
-                remoteLineSuffix.set("#L")
+                sourceLink {
+                    localDirectory.set(file("src/main/kotlin"))
+                    remoteUrl.set(uri("https://github.com/nomsRev/Saga/tree/master/src/main/kotlin").toURL())
+                    remoteLineSuffix.set("#L")
+                }
             }
         }
     }
@@ -49,77 +53,67 @@ java {
     withJavadocJar()
 }
 
-val versionName = "0.1.0-SNAPSHOT"
 val pomDevId = "nomisrev"
 val pomDevName = "Simon Vergauwen"
-val releaseRepo = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-val snapshotRepo = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+val releaseRepo = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+val snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 
-base {
-    archivesName.set("saga")
-}
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = group.toString()
+            version = version.toString()
+            artifactId = "saga"
 
-group = "io.github.nomisrev"
-version = versionName
+            from(components["java"])
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                groupId = "io.github.nomisrev"
-                version = "0.1.0-SNAPSHOT"
-                artifactId = "saga"
+            pom {
+                name.set("Saga")
+                packaging = "jar"
+                description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
+                url.set("https://github.com/nomisrev/Saga")
 
-                from(components["java"])
-
-                pom {
-                    name.set("Saga")
-                    packaging = "jar"
-                    description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
+                scm {
                     url.set("https://github.com/nomisrev/Saga")
-
-                    scm {
-                        url.set("https://github.com/nomisrev/Saga")
-                        connection.set("scm:git:git://github.com/nomisrev/Saga.git")
-                        developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
+                    connection.set("scm:git:git://github.com/nomisrev/Saga.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
+                }
+                licenses {
+                    license {
+                        name.set("The Apache Software License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
                     }
-                    licenses {
-                        license {
-                            name.set("The Apache Software License, Version 2.0")
-                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                            distribution.set("repo")
-                        }
-                    }
-                    developers {
-                        developer {
-                            id.set("nomisrev")
-                            name.set("Simon Vergauwen")
-                        }
+                }
+                developers {
+                    developer {
+                        id.set("nomisrev")
+                        name.set("Simon Vergauwen")
                     }
                 }
             }
-
-        }
-        repositories {
-            maven {
-                credentials {
-                    username = System.getenv("SONATYPE_USER")
-                    password = System.getenv("SONATYPE_PWD")
-                }
-
-                url = if (versionName.endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
-            }
         }
 
-        // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
-        if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
-            signing {
-                val signingKey: String? by project
-                val signingPassword: String? by project
-                useInMemoryPgpKeys(signingKey, signingPassword)
-
-                sign(publishing.publications["mavenJava"])
+    }
+    repositories {
+        maven {
+            credentials {
+                username = System.getenv("SONATYPE_USER")
+                password = System.getenv("SONATYPE_PWD")
             }
+
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
+        }
+    }
+
+    // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
+    if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
+        signing {
+            val signingKey: String? by project
+            val signingPassword: String? by project
+            useInMemoryPgpKeys(signingKey, signingPassword)
+
+            sign(publishing.publications["mavenJava"])
         }
     }
 }
