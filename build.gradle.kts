@@ -50,11 +50,6 @@ tasks.withType<DokkaTask>().configureEach {
     }
 }
 
-//java {
-//    withSourcesJar()
-//    withJavadocJar()
-//}
-
 afterEvaluate {
     val sourcesJar by tasks.creating(Jar::class) {
         archiveClassifier.set("sources")
@@ -117,6 +112,7 @@ afterEvaluate {
             }
 
         }
+
         repositories {
             maven {
                 credentials {
@@ -128,26 +124,19 @@ afterEvaluate {
             }
         }
 
-        println("#########################################################################")
-        println("Has SIGNINGKEY: ${project.hasProperty("SIGNINGKEY")}")
-        println("Has SIGNINGPASSWORD: ${project.hasProperty("SIGNINGPASSWORD")}")
-        println("#########################################################################")
-
-        // Guide: https://docs.gradle.org/current/userguide/signing_plugin.html
-        if (project.hasProperty("SIGNINGKEY") && project.hasProperty("SIGNINGPASSWORD")) {
-            println(
-                """
-            ################################## SIGNING THE CODE 
-        """.trimIndent()
-            )
-
+        Nullable.zip(System.getenv("SIGNINGKEY"), System.getenv("SIGNINGPASSWORD")) { key, pass ->
+            println("################################## SIGNING THE CODE")
             signing {
-                val signingKey: String? by project
-                val signingPassword: String? by project
-                useInMemoryPgpKeys(signingKey, signingPassword)
-
+                useInMemoryPgpKeys(key, pass)
                 sign(publishing.publications["mavenJava"])
             }
         }
     }
+}
+
+object Nullable {
+    fun <A : Any, B : Any, C : Any> zip(a: A?, b: B?, f: (A, B) -> C?): C? =
+        a?.let { a ->
+            b?.let { b -> f(a, b) }
+        }
 }
