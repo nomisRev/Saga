@@ -74,9 +74,6 @@ sealed interface Saga<A> {
     infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
         when (this) {
             is Builder -> Full({ f(this) }, compensate)
-//            is Effect -> saga {
-//                saga { f(this) }.compensate(compensate).bind()
-//            }
             is Full -> Full(action) { a ->
                 compensate(a)
                 this.compensation(a)
@@ -91,7 +88,6 @@ sealed interface Saga<A> {
      */
     suspend fun transact(): A =
         when (this) {
-//            is Effect -> saga(f).transact()
             is Full -> saga { bind() }.transact()
             is Part -> saga { action(this) }.transact()
             is Builder -> _transact()
@@ -312,7 +308,6 @@ internal class SagaBuilder(
 
     override suspend fun <A> Saga<A>.bind(): A =
         when (this) {
-//            is Saga.Effect -> f(this@SagaBuilder)
             is Saga.Full -> bind()
             is Saga.Part -> action()
             is Saga.Builder -> bind()
