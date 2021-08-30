@@ -26,23 +26,20 @@ dependencies {
     testImplementation("io.kotest:kotest-property:4.6.2")
 }
 
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
 
-tasks {
-    val test by getting(Test::class) {
-        useJUnitPlatform()
-    }
-
-    val dokka by getting(DokkaTask::class) {
-        outputDirectory.set(rootDir.resolve("docs"))
-        dokkaSourceSets {
-            named("main") {
-                moduleName.set("Saga")
+tasks.withType<DokkaTask>().configureEach {
+    outputDirectory.set(rootDir.resolve("docs"))
+    dokkaSourceSets {
+        named("main") {
+            moduleName.set("Saga")
 //            includes.from("README.md")
-                sourceLink {
-                    localDirectory.set(file("src/main/kotlin"))
-                    remoteUrl.set(uri("https://github.com/nomsRev/Saga/tree/master/src/main/kotlin").toURL())
-                    remoteLineSuffix.set("#L")
-                }
+            sourceLink {
+                localDirectory.set(file("src/main/kotlin"))
+                remoteUrl.set(uri("https://github.com/nomsRev/Saga/tree/master/src/main/kotlin").toURL())
+                remoteLineSuffix.set("#L")
             }
         }
     }
