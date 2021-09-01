@@ -1,0 +1,5 @@
+const val kotlinVersion = "1.5.20"
+const val dokkaVersion = "1.5.0"
+const val arrowVersion = "0.13.1"
+const val kotestVersion = "4.6.1"
+const val coroutinesVersion = "1.5.1"

@@ -2,9 +2,9 @@ import io.github.nomisrev.Dependencies
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-plugins {                 // Needs to be FQN..
-    kotlin("jvm") version io.github.nomisrev.Versions.kotlin
-    id("org.jetbrains.dokka") version io.github.nomisrev.Versions.dokka
+plugins {
+    kotlin("jvm") version kotlinVersion
+    id("org.jetbrains.dokka") version dokkaVersion
     id("java-library")
     id("maven-publish")
     id("signing")
