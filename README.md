@@ -4,6 +4,18 @@
 [![Latest snapshot](https://img.shields.io/badge/dynamic/xml?color=orange&label=latest%20snapshot&prefix=v&query=%2F%2Fmetadata%2Fversioning%2Flatest&url=https%3A%2F%2Fs01.oss.sonatype.org%2Fservice%2Flocal%2Frepositories%2Fsnapshots%2Fcontent%2Fio%2Fgithub%2Fnomisrev%2Fsaga%2Fmaven-metadata.xml)](https://s01.oss.sonatype.org/service/local/repositories/snapshots/content/io/github/nomisrev)
 [Website can be found here](https://nomisrev.github.io/Saga)
 
+Add in `build.gradle.kts`
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.github.nomisrev:saga:0.1.3")
+}
+```
+
 The saga design pattern is a way to manage data consistency across microservices in distributed transaction scenarios.
 
 A [Saga] is useful when you need to manage data in a consistent manner across services in distributed transaction scenarios.
