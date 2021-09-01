@@ -3,6 +3,6 @@
     "config:base"
   ],
   "gradle": {
-    "fileMatch": ["^buildSrc/src/main/kotlin/io/github/nomisrev/Dependencies\\.kt$"]
+    "fileMatch": ["^buildSrc/src/main/kotlin/Dependencies\\.kt$"]
   }
 }
