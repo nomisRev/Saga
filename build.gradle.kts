@@ -1,9 +1,10 @@
+import io.github.nomisrev.Dependencies
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-plugins {
-    kotlin("jvm") version "1.5.30"
-    id("org.jetbrains.dokka") version "1.5.0"
+plugins {                 // Needs to be FQN..
+    kotlin("jvm") version io.github.nomisrev.Versions.kotlin
+    id("org.jetbrains.dokka") version io.github.nomisrev.Versions.dokka
     id("java-library")
     id("maven-publish")
     id("signing")
@@ -18,13 +19,13 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("io.arrow-kt:arrow-core:0.13.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
-    implementation("io.arrow-kt:arrow-fx-coroutines:0.13.2")
+    implementation(Dependencies.KotlinX.coroutines)
+    implementation(Dependencies.Arrow.core)
+    implementation(Dependencies.Arrow.fxCoroutines)
 
-    testImplementation("io.kotest:kotest-runner-junit5:4.6.2")
-    testImplementation("io.kotest:kotest-assertions-core:4.6.2")
-    testImplementation("io.kotest:kotest-property:4.6.2")
+    testImplementation(Dependencies.Kotest.runnerJunit)
+    testImplementation(Dependencies.Kotest.assertionsCore)
+    testImplementation(Dependencies.Kotest.property)
 }
 
 tasks.withType<Test>().configureEach {
