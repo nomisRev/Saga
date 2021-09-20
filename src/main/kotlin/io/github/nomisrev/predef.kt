@@ -2,7 +2,7 @@
 package io.github.nomisrev
 
 import arrow.core.Either
-import arrow.fx.coroutines.nonFatalOrThrow
+import arrow.core.nonFatalOrThrow
 import arrow.fx.coroutines.runReleaseAndRethrow
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.NonCancellable
@@ -13,7 +13,6 @@ internal fun <E, A> Either<E, A>.leftOrNull(): E? = when (this) {
     is Either.Right -> null
 }
 
-// TODO needs to be done in Arrow before 1.0.0
 internal sealed class ExitCase<out A> {
     data class Completed<A>(val value: A) : ExitCase<A>() {
         override fun toString(): String =
