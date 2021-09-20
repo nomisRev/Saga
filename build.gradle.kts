@@ -19,7 +19,7 @@ repositories {
 dependencies {
   implementation(kotlin("stdlib"))
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-  implementation("io.arrow-kt:arrow-core:0.13.3")
+  implementation("io.arrow-kt:arrow-core:1.0.0")
   implementation("io.arrow-kt:arrow-fx-coroutines:0.13.3")
 
   testImplementation("io.kotest:kotest-runner-junit5:4.6.3")
