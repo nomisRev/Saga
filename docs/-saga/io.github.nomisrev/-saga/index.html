@@ -2,7 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
     <title>Saga</title>
-<link href="../../../../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" async="async"></script>  </head>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script><script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script><link href="../../../styles/style.css" rel="Stylesheet"><link href="../../../styles/logo-styles.css" rel="Stylesheet"><link href="../../../styles/jetbrains-mono.css" rel="Stylesheet"><link href="../../../styles/main.css" rel="Stylesheet"><script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script><script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script><script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script><script type="text/javascript" src="../../../scripts/main.js" async="async"></script>  </head>
   <body>
     <div id="container">
       <div id="leftColumn"><a href="../../../index.html">
@@ -21,7 +21,7 @@
             </div>
           </div>
           <div class="cover ">
-            <h1 class="cover"><span>Saga</span></h1>
+            <h1 class="cover"><span><span>Saga</span></span></h1>
             <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace">interface <a href="index.html">Saga</a>&lt;<a href="index.html">A</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">The saga design pattern is a way to manage data consistency across microservices in distributed transaction scenarios. A <a href="index.html">Saga</a> is useful when you need to manage data in a consistent manner across services in distributed transaction scenarios. Or when you need to compose multiple <code>actions</code> with a <code>compensation</code> that needs to run in a transaction like style.</p><p class="paragraph">For example, let's say that we have following domain types <code>Order</code>, <code>Payment</code>.</p><div class="sample-container"><code class="" theme="idea"><pre>data class Order(val id: UUID, val amount: Long)<br>data class Payment(val id: UUID, val orderId: UUID)</pre></code></div><p class="paragraph">The creation of an <code>Order</code> can only remain when a payment has been made. In SQL you might run this inside a transaction, which can automatically rollback the creation of the <code>Order</code> when the creation of the Payment fails.</p><p class="paragraph">When you need to do this across distributed services, or a multiple atomic references, etc you need to manually facilitate the rolling back of the performed actions, or compensating actions.</p><p class="paragraph">The <a href="index.html">Saga</a> type, and <a href="../saga.html">saga</a> DSL remove all the boilerplate of manually having to facilitate this with a convenient suspending DSL.</p><div class="sample-container"><code class="" theme="idea"><pre>data class Order(val id: UUID, val amount: Long)<br>suspend fun createOrder(): Order = Order(UUID.randomUUID(), 100L)<br>suspend fun deleteOrder(order: Order): Unit = println(&quot;Deleting $order&quot;)<br><br>data class Payment(val id: UUID, val orderId: UUID)<br>suspend fun createPayment(order: Order): Payment = Payment(UUID.randomUUID(), order.id)<br>suspend fun deletePayment(payment: Payment): Unit = println(&quot;Deleting $payment&quot;)<br><br>suspend fun Payment.awaitSuccess(): Unit = throw RuntimeException(&quot;Payment Failed&quot;)<br><br>suspend fun main() {<br>  saga {<br>    val order = saga { createOrder() }.compensate(::deleteOrder).bind()<br>    val payment = saga { createPayment(order) }.compensate(::deletePayment).bind()<br>    payment.awaitSuccess()<br>  }.transact()<br>}</pre></code></div></div></div>
           </div>
           <div class="tabbedcontent">
@@ -31,16 +31,16 @@
               <div class="table" data-togglable="Types"><a data-name="-948720003%2FClasslikes%2F769193423" anchor-label="Builder" id="-948720003%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
                 <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-builder/index.html">Builder</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-948720003%2FClasslikes%2F769193423"></span>
+                    <div class=""><span class="inline-flex"><a href="-builder/index.html"><span><span>Builder</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-948720003%2FClasslikes%2F769193423"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title"><div class="divergent-group" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="with-platform-tags"><span class="pull-right"></span></div>
 
   <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-inline/index.html">JvmInline</a>()</div></div>value class <a href="-builder/index.html">Builder</a>&lt;<a href="-builder/index.html">A</a>&gt;(f: suspend <a href="../-saga-effect/index.html">SagaEffect</a>.() -&gt; <a href="-builder/index.html">A</a>) : <a href="index.html">Saga</a>&lt;<a href="-builder/index.html">A</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-inline/index.html">JvmInline</a></div></div>value class <a href="-builder/index.html">Builder</a>&lt;<a href="-builder/index.html">A</a>&gt;(f: suspend <a href="../-saga-effect/index.html">SagaEffect</a>.() -&gt; <a href="-builder/index.html">A</a>) : <a href="index.html">Saga</a>&lt;<a href="-builder/index.html">A</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
-<a data-name="-948720003%2FClasslikes%2F769193423" anchor-label="Builder" id="-948720003%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a><div class="brief "><a data-name="-948720003%2FClasslikes%2F769193423" anchor-label="Builder" id="-948720003%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>Wrapper around the <code>saga { }</code> builder.</div></div>
+<div class="brief "><p class="paragraph">Wrapper around the <code>saga { }</code> builder. This was we can run the <a href="index.html">Saga</a> on a single <span data-unresolved-link="io.github.nomisrev/SagaBuilder///PointingToDeclaration/">SagaBuilder</span>.</p></div></div>
 </div>
                     </div>
                   </div>
@@ -48,7 +48,7 @@
 <a data-name="-411184037%2FClasslikes%2F769193423" anchor-label="Full" id="-411184037%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
                 <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-full/index.html">Full</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-411184037%2FClasslikes%2F769193423"></span>
+                    <div class=""><span class="inline-flex"><a href="-full/index.html"><span><span>Full</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-411184037%2FClasslikes%2F769193423"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
@@ -57,7 +57,7 @@
   <div>
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace">class <a href="-full/index.html">Full</a>&lt;<a href="-full/index.html">A</a>&gt;(action: suspend <a href="../-saga-effect/index.html">SagaEffect</a>.() -&gt; <a href="-full/index.html">A</a>, compensation: suspend (<a href="-full/index.html">A</a>) -&gt; <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a>) : <a href="index.html">Saga</a>&lt;<a href="-full/index.html">A</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
-<a data-name="-411184037%2FClasslikes%2F769193423" anchor-label="Full" id="-411184037%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a><div class="brief "><a data-name="-411184037%2FClasslikes%2F769193423" anchor-label="Full" id="-411184037%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>Full for a <a href="index.html">Saga</a> that defines both <a href="-full/action.html">action</a> and <a href="-full/compensation.html">Full.compensation</a>.</div></div>
+<div class="brief "><p class="paragraph">Full for a <a href="index.html">Saga</a> that defines both <a href="-full/action.html">action</a> and <a href="-full/compensation.html">Full.compensation</a>.</p></div></div>
 </div>
                     </div>
                   </div>
@@ -65,16 +65,16 @@
 <a data-name="452537207%2FClasslikes%2F769193423" anchor-label="Part" id="452537207%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
                 <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="-part/index.html">Part</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="452537207%2FClasslikes%2F769193423"></span>
+                    <div class=""><span class="inline-flex"><a href="-part/index.html"><span><span>Part</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="452537207%2FClasslikes%2F769193423"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
                       <div class="title"><div class="divergent-group" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main"><div class="with-platform-tags"><span class="pull-right"></span></div>
 
   <div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-inline/index.html">JvmInline</a>()</div></div>value class <a href="-part/index.html">Part</a>&lt;<a href="-part/index.html">A</a>&gt;(action: suspend <a href="../-saga-effect/index.html">SagaEffect</a>.() -&gt; <a href="-part/index.html">A</a>) : <a href="index.html">Saga</a>&lt;<a href="-part/index.html">A</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace"><div class="block"><div class="block">@<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.jvm/-jvm-inline/index.html">JvmInline</a></div></div>value class <a href="-part/index.html">Part</a>&lt;<a href="-part/index.html">A</a>&gt;(action: suspend <a href="../-saga-effect/index.html">SagaEffect</a>.() -&gt; <a href="-part/index.html">A</a>) : <a href="index.html">Saga</a>&lt;<a href="-part/index.html">A</a>&gt; <span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
-<a data-name="452537207%2FClasslikes%2F769193423" anchor-label="Part" id="452537207%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a><div class="brief "><a data-name="452537207%2FClasslikes%2F769193423" anchor-label="Part" id="452537207%2FClasslikes%2F769193423" data-filterable-set=":dokkaHtml/main"></a>A partial <a href="index.html">Saga</a>, tt only defines the <a href="-part/action.html">action</a>.</div></div>
+<div class="brief "><p class="paragraph">A partial <a href="index.html">Saga</a>, tt only defines the <a href="-part/action.html">action</a>.</p></div></div>
 </div>
                     </div>
                   </div>
@@ -84,7 +84,7 @@
               <div class="table" data-togglable="Functions"><a data-name="1429456760%2FFunctions%2F769193423" anchor-label="compensate" id="1429456760%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
                 <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="compensate.html">compensate</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1429456760%2FFunctions%2F769193423"></span>
+                    <div class=""><span class="inline-flex"><a href="compensate.html"><span><span>compensate</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1429456760%2FFunctions%2F769193423"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
@@ -93,7 +93,7 @@
   <div>
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace">open infix fun <a href="compensate.html">compensate</a>(compensate: suspend (<a href="index.html">A</a>) -&gt; <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a>): <a href="index.html">Saga</a>&lt;<a href="index.html">A</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
-<a data-name="1429456760%2FFunctions%2F769193423" anchor-label="compensate" id="1429456760%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a><div class="brief "><a data-name="1429456760%2FFunctions%2F769193423" anchor-label="compensate" id="1429456760%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>Add a compensating action to a <a href="index.html">Saga</a>.</div></div>
+<div class="brief "><p class="paragraph">Add a compensating action to a <a href="index.html">Saga</a>. A single <a href="index.html">Saga</a> can have many compensating actions, they will be composed in a FILO order. This makes sure they're executed in reverse order as the actions.</p></div></div>
 </div>
                     </div>
                   </div>
@@ -101,7 +101,7 @@
 <a data-name="1522157380%2FFunctions%2F769193423" anchor-label="parZip" id="1522157380%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
                 <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="par-zip.html">parZip</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1522157380%2FFunctions%2F769193423"></span>
+                    <div class=""><span class="inline-flex"><a href="par-zip.html"><span>par</span><wbr></wbr><span><span>Zip</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1522157380%2FFunctions%2F769193423"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
@@ -116,7 +116,7 @@
   <div>
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace">open fun &lt;<a href="par-zip.html">B</a>, <a href="par-zip.html">C</a>&gt; <a href="par-zip.html">parZip</a>(ctx: <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a>, other: <a href="index.html">Saga</a>&lt;<a href="par-zip.html">B</a>&gt;, transform: suspend <span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span>.(<a href="index.html">A</a>, <a href="par-zip.html">B</a>) -&gt; <a href="par-zip.html">C</a>): <a href="index.html">Saga</a>&lt;<a href="par-zip.html">C</a>&gt;<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
-<a data-name="-180054135%2FFunctions%2F769193423" anchor-label="parZip" id="-180054135%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a><div class="brief "><a data-name="-180054135%2FFunctions%2F769193423" anchor-label="parZip" id="-180054135%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>Runs multiple <a href="index.html">Saga</a>s in parallel and combines the result with the <a href="par-zip.html">transform</a> function.</div></div>
+<div class="brief "><p class="paragraph">Runs multiple <a href="index.html">Saga</a>s in parallel and combines the result with the <a href="par-zip.html">transform</a> function. When one of the two <a href="index.html">Saga</a> fails then it will cancel the other, if the other <a href="index.html">Saga</a> already finished then its compensating action will be run.</p></div></div>
 </div>
                     </div>
                   </div>
@@ -124,7 +124,7 @@
 <a data-name="862067627%2FFunctions%2F769193423" anchor-label="transact" id="862067627%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>
                 <div class="table-row" data-filterable-current=":dokkaHtml/main" data-filterable-set=":dokkaHtml/main">
                   <div class="main-subrow keyValue ">
-                    <div class=""><span class="inline-flex"><a href="transact.html">transact</a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="862067627%2FFunctions%2F769193423"></span>
+                    <div class=""><span class="inline-flex"><a href="transact.html"><span><span>transact</span></span></a><span class="anchor-wrapper"><span class="anchor-icon" pointing-to="862067627%2FFunctions%2F769193423"></span>
                           <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
                         </span></span></div>
                     <div>
@@ -133,7 +133,7 @@
   <div>
     <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/main"><div class="symbol monospace">open suspend fun <a href="transact.html">transact</a>(): <a href="index.html">A</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
-<a data-name="862067627%2FFunctions%2F769193423" anchor-label="transact" id="862067627%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a><div class="brief "><a data-name="862067627%2FFunctions%2F769193423" anchor-label="transact" id="862067627%2FFunctions%2F769193423" data-filterable-set=":dokkaHtml/main"></a>Transact runs the <a href="index.html">Saga</a> turning it into a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/index.html">suspend</a> effect that results in <a href="index.html">A</a>.</div></div>
+<div class="brief "><p class="paragraph">Transact runs the <a href="index.html">Saga</a> turning it into a <a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/index.html">suspend</a> effect that results in <a href="index.html">A</a>. If the saga fails then all compensating actions are guaranteed to run. When a compensating action failed it will be ignored, and the other compensating actions will continue to be run.</p></div></div>
 </div>
                     </div>
                   </div>
