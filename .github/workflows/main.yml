@@ -14,25 +14,13 @@ env:
   SIGNINGPASSWORD: ${{ secrets.SIGNINGPASSWORD }}
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Build
-        run: ./gradlew test --scan
-  publish:
-
+  publish_jvm_js_linux_apple:
     env:
       SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
 
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: macos-latest
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v2
@@ -47,3 +35,19 @@ jobs:
 
       - name: Build
         run: ./gradlew publish --scan --stacktrace
+  publish_windows:
+    env:
+      SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+      SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
+
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: ./gradlew publishMingwX64PublicationToMavenRepository --scan --stacktrace
+
