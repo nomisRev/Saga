@@ -122,7 +122,7 @@ afterEvaluate {
       )
     }
     repositories {
-      sonatype(if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo)
+      maven(if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo)
     }
     signPublications()
   }
@@ -190,12 +190,12 @@ fun MavenPublication.setupPom(
   }
 }
 
-fun RepositoryHandler.sonatype(
+fun RepositoryHandler.maven(
   snapshotRepo: URI,
   sonatypeUsername: String? = System.getenv("SONATYPE_USER"),
   sonatypePassword: String? = System.getenv("SONATYPE_PWD"),
 ): MavenArtifactRepository = maven {
-  name = "SonatypeSnapshots"
+  name = "Maven"
   url = snapshotRepo
   credentials {
     username = sonatypeUsername
