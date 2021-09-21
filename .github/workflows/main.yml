@@ -20,7 +20,7 @@ jobs:
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
 
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 120
 
     steps:
       - uses: actions/checkout@v2
@@ -50,4 +50,3 @@ jobs:
 
       - name: Build
         run: ./gradlew publishMingwX64PublicationToMavenRepository --scan --stacktrace
-

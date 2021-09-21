@@ -11,14 +11,15 @@ plugins {
 }
 
 group = "io.github.nomisrev"
-version = "0.1.4-SNAPSHOT"
+version = "0.1.4"
 
 repositories {
   mavenCentral()
+  maven(url = "https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
 kotlin {
-//  explicitApi()
+  explicitApi()
   jvm()
   js(IR) {
     browser()
@@ -26,6 +27,18 @@ kotlin {
   }
   linuxX64()
   mingwX64()
+  macosX64()
+  macosArm64()
+  tvos()
+  tvosSimulatorArm64()
+  watchosArm32()
+  watchosX86()
+  watchosX64()
+  watchosSimulatorArm64()
+  iosX64()
+  iosArm64()
+  iosArm32()
+  iosSimulatorArm64()
 
   targets.all {
     compilations.all {
@@ -36,38 +49,20 @@ kotlin {
   }
 
   sourceSets {
-    val commonMain by getting {
+    commonMain {
       dependencies {
         implementation(kotlin("stdlib"))
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-        implementation("io.arrow-kt:arrow-core:1.0.0")
-        implementation("io.arrow-kt:arrow-fx-coroutines:1.0.0")
+        implementation("io.arrow-kt:arrow-core:1.0.0-SNAPSHOT")
+        implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1-SNAPSHOT")
       }
     }
-    val commonTest by getting {
+    commonTest {
       dependencies {
         implementation("io.kotest:kotest-framework-engine:5.0.0.M1")
         implementation("io.kotest:kotest-assertions-core:5.0.0.M1")
         implementation("io.kotest:kotest-property:5.0.0.M1")
       }
-    }
-    val nativeMain by creating {
-      dependsOn(commonMain)
-    }
-    val mingwX64Main by getting {
-      dependsOn(nativeMain)
-    }
-    val linuxX64Main by getting {
-      dependsOn(nativeMain)
-    }
-    val nativeTest by creating {
-      dependsOn(commonTest)
-    }
-    val mingwX64Test by getting {
-      dependsOn(nativeTest)
-    }
-    val linuxX64Test by getting {
-      dependsOn(nativeTest)
     }
   }
 }
@@ -191,12 +186,12 @@ fun MavenPublication.setupPom(
 }
 
 fun RepositoryHandler.maven(
-  snapshotRepo: URI,
+  uri: URI,
   sonatypeUsername: String? = System.getenv("SONATYPE_USER"),
   sonatypePassword: String? = System.getenv("SONATYPE_PWD"),
 ): MavenArtifactRepository = maven {
   name = "Maven"
-  url = snapshotRepo
+  url = uri
   credentials {
     username = sonatypeUsername
     password = sonatypePassword
