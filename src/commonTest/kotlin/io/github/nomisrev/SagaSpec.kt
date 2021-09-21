@@ -58,7 +58,7 @@ class SagaSpec : StringSpec({
     }
   }
 
-  "Saga runs compensation in order & rethrows exception" {
+  "Saga runs compensation in order & rethrows exception".config(enabled = false) {
     checkAll(Arb.int(), Arb.int()) { a, b ->
       val compensations = Channel<Int>(2)
       val saga = saga {
