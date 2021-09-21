@@ -139,7 +139,7 @@ fun Project.signPublications() {
   Nullable.zip(System.getenv("SIGNINGKEY"), System.getenv("SIGNINGPASSWORD")) { key, pass ->
     signing {
       useInMemoryPgpKeys(key, pass)
-      sign(publishing.publications["mavenJava"])
+      sign(publishing.publications)
     }
   }
 }
