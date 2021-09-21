@@ -1,10 +1,11 @@
+import java.net.URI
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "1.5.31"
+  kotlin("multiplatform") version "1.5.31"
+  id("io.kotest.multiplatform") version "5.0.0.5"
   id("org.jetbrains.dokka") version "1.5.30"
-  id("java-library")
   id("maven-publish")
   id("signing")
 }
@@ -16,15 +17,59 @@ repositories {
   mavenCentral()
 }
 
-dependencies {
-  implementation(kotlin("stdlib"))
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-  implementation("io.arrow-kt:arrow-core:1.0.0")
-  implementation("io.arrow-kt:arrow-fx-coroutines:1.0.0")
+kotlin {
+//  explicitApi()
+  jvm()
+  js(IR) {
+    browser()
+    nodejs()
+  }
+  linuxX64()
+  mingwX64()
 
-  testImplementation("io.kotest:kotest-runner-junit5:4.6.3")
-  testImplementation("io.kotest:kotest-assertions-core:4.6.3")
-  testImplementation("io.kotest:kotest-property:4.6.3")
+  targets.all {
+    compilations.all {
+      kotlinOptions {
+        verbose = true
+      }
+    }
+  }
+
+  sourceSets {
+    val commonMain by getting {
+      dependencies {
+        implementation(kotlin("stdlib"))
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+        implementation("io.arrow-kt:arrow-core:1.0.0")
+        implementation("io.arrow-kt:arrow-fx-coroutines:1.0.0")
+      }
+    }
+    val commonTest by getting {
+      dependencies {
+        implementation("io.kotest:kotest-framework-engine:5.0.0.M1")
+        implementation("io.kotest:kotest-assertions-core:5.0.0.M1")
+        implementation("io.kotest:kotest-property:5.0.0.M1")
+      }
+    }
+    val nativeMain by creating {
+      dependsOn(commonMain)
+    }
+    val mingwX64Main by getting {
+      dependsOn(nativeMain)
+    }
+    val linuxX64Main by getting {
+      dependsOn(nativeMain)
+    }
+    val nativeTest by creating {
+      dependsOn(commonTest)
+    }
+    val mingwX64Test by getting {
+      dependsOn(nativeTest)
+    }
+    val linuxX64Test by getting {
+      dependsOn(nativeTest)
+    }
+  }
 }
 
 tasks.withType<Test>().configureEach {
@@ -34,7 +79,7 @@ tasks.withType<Test>().configureEach {
 tasks.withType<DokkaTask>().configureEach {
   outputDirectory.set(rootDir.resolve("docs"))
   dokkaSourceSets {
-    named("main") {
+    named("commonMain") {
       perPackageOption {
         matchingRegex.set(".*\\.internal.*") // will match all .internal packages and sub-packages
         suppress.set(true)
@@ -58,22 +103,6 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 afterEvaluate {
-  val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.main.get().allSource)
-  }
-
-  val javadocJar by tasks.creating(Jar::class) {
-    dependsOn.add(tasks.javadoc)
-    archiveClassifier.set("javadoc")
-    from(tasks.javadoc)
-  }
-
-  artifacts {
-    archives(sourcesJar)
-    archives(javadocJar)
-    archives(tasks.jar)
-  }
 
   val pomDevId = "nomisrev"
   val pomDevName = "Simon Vergauwen"
@@ -81,61 +110,21 @@ afterEvaluate {
   val snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 
   publishing {
-    publications {
-      register("mavenJava", MavenPublication::class) {
-        groupId = group.toString()
-        version = version.toString()
-        artifactId = "saga"
-
-        artifact(sourcesJar)
-        artifact(javadocJar)
-        from(components["java"])
-
-        pom {
-          name.set("Saga")
-          packaging = "jar"
-          description.set("Functional implementation of Saga pattern in Kotlin on top of Coroutines")
-          url.set("https://github.com/nomisrev/Saga")
-
-          scm {
-            url.set("https://github.com/nomisrev/Saga")
-            connection.set("scm:git:git://github.com/nomisrev/Saga.git")
-            developerConnection.set("scm:git:ssh://git@github.com/nomisrev/Saga.git")
-          }
-          licenses {
-            license {
-              name.set("The Apache Software License, Version 2.0")
-              url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-              distribution.set("repo")
-            }
-          }
-          developers {
-            developer {
-              id.set(pomDevId)
-              name.set(pomDevName)
-            }
-          }
-        }
-      }
+    val mavenPublications = publications.withType<MavenPublication>()
+    mavenPublications.all {
+      artifact(project.tasks.emptyJavadocJar())
+      setupPom(
+        gitUrl = "https://github.com/nomisrev/Saga.git",
+        url = "https://github.com/nomisrev/Saga",
+        description = "Functional implementation of Saga pattern in Kotlin on top of Coroutines",
+        pomDevId = pomDevId,
+        pomDevName = pomDevName
+      )
     }
-
     repositories {
-      maven {
-        credentials {
-          username = System.getenv("SONATYPE_USER")
-          password = System.getenv("SONATYPE_PWD")
-        }
-
-        url = if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo
-      }
+      sonatype(if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo)
     }
-
-    Nullable.zip(System.getenv("SIGNINGKEY"), System.getenv("SIGNINGPASSWORD")) { key, pass ->
-      signing {
-        useInMemoryPgpKeys(key, pass)
-        sign(publishing.publications["mavenJava"])
-      }
-    }
+    signPublications()
   }
 }
 
@@ -144,4 +133,72 @@ object Nullable {
     a?.let { aa ->
       b?.let { bb -> f(aa, bb) }
     }
+}
+
+fun Project.signPublications() {
+  Nullable.zip(System.getenv("SIGNINGKEY"), System.getenv("SIGNINGPASSWORD")) { key, pass ->
+    signing {
+      useInMemoryPgpKeys(key, pass)
+      sign(publishing.publications["mavenJava"])
+    }
+  }
+}
+
+fun TaskContainer.emptyJavadocJar(): TaskProvider<Jar> {
+  val taskName = "javadocJar"
+  return try {
+    named(name = taskName)
+  } catch (e: UnknownTaskException) {
+    register(name = taskName) { archiveClassifier.set("javadoc") }
+  }
+}
+
+fun MavenPublication.setupPom(
+  gitUrl: String,
+  url: String,
+  description: String,
+  pomDevId: String,
+  pomDevName: String,
+  licenseName: String = "The Apache Software License, Version 2.0",
+  licenseUrl: String = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+) = pom {
+  if (!name.isPresent) {
+    name.set(artifactId)
+  }
+  this@pom.description.set(description)
+  this@pom.url.set(url)
+  licenses {
+    license {
+      name.set(licenseName)
+      this@license.url.set(licenseUrl)
+    }
+  }
+  developers {
+    developer {
+      id.set(pomDevId)
+      name.set(pomDevName)
+    }
+  }
+  scm {
+    connection.set(gitUrl)
+    developerConnection.set(gitUrl)
+    this@scm.url.set(url)
+  }
+  if (gitUrl.startsWith("https://github.com")) issueManagement {
+    system.set("GitHub")
+    this@issueManagement.url.set(gitUrl.replace(".git", "/issues"))
+  }
+}
+
+fun RepositoryHandler.sonatype(
+  snapshotRepo: URI,
+  sonatypeUsername: String? = System.getenv("SONATYPE_USER"),
+  sonatypePassword: String? = System.getenv("SONATYPE_PWD"),
+): MavenArtifactRepository = maven {
+  name = "SonatypeSnapshots"
+  url = snapshotRepo
+  credentials {
+    username = sonatypeUsername
+    password = sonatypePassword
+  }
 }

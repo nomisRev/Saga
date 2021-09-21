@@ -13,6 +13,7 @@ import io.kotest.property.checkAll
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 
+@Suppress("unused")
 class SagaSpec : StringSpec({
 
     "Saga returns action result" {
@@ -75,7 +76,7 @@ class SagaSpec : StringSpec({
             }
             val res = shouldThrow<SagaFailed> { saga.transact() }
             res shouldBe original
-            res.suppressed[0] shouldBe compensation
+            res.suppressedExceptions[0] shouldBe compensation
             compensationA.await() shouldBeExactly a
         }
     }
@@ -92,7 +93,7 @@ class SagaSpec : StringSpec({
             }
             val res = shouldThrow<SagaFailed> { saga.transact() }
             res shouldBe original
-            res.suppressed[0] shouldBe compensation
+            res.suppressedExceptions[0] shouldBe compensation
             compensationA.await() shouldBeExactly a
         }
     }
