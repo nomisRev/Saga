@@ -3,7 +3,6 @@
 package io.github.nomisrev
 
 import io.kotest.assertions.fail
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -65,7 +64,7 @@ class SagaSpec : StringSpec({
       val saga = saga {
         saga { a }.compensate { compensations.send(it) }.bind()
         saga { b }.compensate { compensations.send(it) }.bind()
-        saga { throw SagaFailed() }.compensate { fail("Doesn't run") }.bind()
+        saga { throw SagaFailed() }.compensate { throw AssertionError("Doesn't run") }.bind()
       }
       try {
         saga.transact()
@@ -86,7 +85,7 @@ class SagaSpec : StringSpec({
       val saga = saga {
         saga { a }.compensate { compensationA.complete(it) }.bind()
         saga { }.compensate { throw compensation }.bind()
-        saga { throw original }.compensate { fail("Doesn't run") }.bind()
+        saga { throw original }.compensate { throw AssertionError("Doesn't run") }.bind()
       }
       val res = try {
         saga.transact()
@@ -94,7 +93,7 @@ class SagaSpec : StringSpec({
         e
       }
       res shouldBe original
-      res.suppressedExceptions[0] shouldBe compensation
+      res.suppressedExceptions.firstOrNull() shouldBe compensation
       compensationA.await() shouldBeExactly a
     }
   }
@@ -115,21 +114,21 @@ class SagaSpec : StringSpec({
         e
       }
       res shouldBe original
-      res.suppressedExceptions[0] shouldBe compensation
+      res.suppressedExceptions.firstOrNull() shouldBe compensation
       compensationA.await() shouldBeExactly a
     }
   }
 
   "Saga can traverse" {
     checkAll(Arb.list(Arb.int())) { ints ->
-      ints.traverseSaga { saga { it }.compensate { fail("Doesn't run") } }
+      ints.traverseSaga { saga { it }.compensate { throw AssertionError("Doesn't run") } }
         .transact() shouldBe ints
     }
   }
 
   "Saga can sequence" {
     checkAll(Arb.list(Arb.int())) { ints ->
-      ints.map { saga { it }.compensate { fail("Doesn't run") } }
+      ints.map { saga { it }.compensate { throw AssertionError("Doesn't run") } }
         .sequence()
         .transact() shouldBe ints
     }
@@ -137,14 +136,14 @@ class SagaSpec : StringSpec({
 
   "Saga can parTraverse" {
     checkAll(Arb.list(Arb.int())) { ints ->
-      ints.parTraverseSaga { saga { it }.compensate { fail("Doesn't run") } }
+      ints.parTraverseSaga { saga { it }.compensate { throw AssertionError("Doesn't run") } }
         .transact() shouldBe ints
     }
   }
 
   "Saga can parSequence" {
     checkAll(Arb.list(Arb.int())) { ints ->
-      ints.map { saga { it }.compensate { fail("Doesn't run") } }
+      ints.map { saga { it }.compensate { throw AssertionError("Doesn't run") } }
         .parSequence()
         .transact() shouldBe ints
     }
@@ -154,11 +153,14 @@ class SagaSpec : StringSpec({
     checkAll(Arb.int()) { a ->
       val compensationA = CompletableDeferred<Int>()
       val latch = CompletableDeferred<Unit>()
-      val saga = saga { latch.complete(Unit); a }.compensate { compensationA.complete(it) }
+      val saga = saga {
+        latch.complete(Unit)
+        a
+      }.compensate { compensationA.complete(it) }
         .parZip(saga {
           latch.await()
           throw SagaFailed()
-        } compensate { fail("Doesn't run") }) { _, _ -> }
+        } compensate { throw AssertionError("Doesn't run") }) { _, _ -> }
       try {
         saga.transact()
       } catch (e: SagaFailed) {
@@ -175,8 +177,11 @@ class SagaSpec : StringSpec({
       val saga = saga {
         latch.await()
         throw SagaFailed()
-      }.compensate { fail("Doesn't run") }
-        .parZip(saga { latch.complete(Unit); a } compensate { compensationB.complete(it) }) { _, _ -> }
+      }.compensate { throw AssertionError("Doesn't run") }
+        .parZip(saga {
+          latch.complete(Unit)
+          a
+        } compensate { compensationB.complete(it) }) { _, _ -> }
       try {
         saga.transact()
       } catch (e: SagaFailed) {

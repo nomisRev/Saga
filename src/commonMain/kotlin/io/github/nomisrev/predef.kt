@@ -5,6 +5,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
+/* A variant of [ExitCase] that contains value of [A] in case of [ExitCase.Completed] */
 internal sealed class ExitCase<out A> {
     data class Completed<A>(val value: A) : ExitCase<A>() {
         override fun toString(): String =
@@ -15,6 +16,7 @@ internal sealed class ExitCase<out A> {
     data class Failure(val failure: Throwable) : ExitCase<Nothing>()
 }
 
+/*  A variant of guaranteeCase that contains value of [A] in case of [ExitCase.Completed] */
 @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 internal suspend inline fun <A> guaranteeCase(
     fa: suspend () -> A,
