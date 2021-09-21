@@ -55,7 +55,7 @@ import kotlinx.coroutines.Dispatchers
  * }
  * ```
  */
-public sealed interface Saga<A> {
+sealed interface Saga<A> {
 
   /**
    * Add a compensating action to a [Saga].
@@ -74,7 +74,7 @@ public sealed interface Saga<A> {
    * // RuntimeException("Boom!")
    * ```
    */
-  public infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
+  infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
     when (this) {
       is Builder -> Full({ f(this) }, compensate)
       is Full -> Full(action) { a ->
@@ -89,7 +89,7 @@ public sealed interface Saga<A> {
    * If the saga fails then all compensating actions are guaranteed to run.
    * When a compensating action failed it will be ignored, and the other compensating actions will continue to be run.
    */
-  public suspend fun transact(): A =
+  suspend fun transact(): A =
     when (this) {
       is Full -> saga { bind() }.transact()
       is Part -> saga { action(this) }.transact()
@@ -104,7 +104,7 @@ public sealed interface Saga<A> {
    * If the resulting Saga is cancelled, then all composed [Saga]s will also cancel.
    * All actions that already ran will get compensated first.
    */
-  public fun <B, C> parZip(
+  fun <B, C> parZip(
     ctx: CoroutineContext,
     other: Saga<B>,
     transform: suspend CoroutineScope.(a: A, b: B) -> C
@@ -112,10 +112,10 @@ public sealed interface Saga<A> {
     parZip(ctx, { bind() }, { other.bind() }, transform)
   }
 
-  public fun <B, C> parZip(other: Saga<B>, transform: suspend CoroutineScope.(a: A, b: B) -> C): Saga<C> =
+  fun <B, C> parZip(other: Saga<B>, transform: suspend CoroutineScope.(a: A, b: B) -> C): Saga<C> =
     parZip(Dispatchers.Default, other, transform)
 
-  public fun <B, C, D> parZip(
+  fun <B, C, D> parZip(
     ctx: CoroutineContext,
     b: Saga<B>,
     c: Saga<C>,
@@ -124,7 +124,7 @@ public sealed interface Saga<A> {
     parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, f)
   }
 
-  public fun <B, C, D, E> parZip(
+  fun <B, C, D, E> parZip(
     ctx: CoroutineContext,
     b: Saga<B>,
     c: Saga<C>,
@@ -134,7 +134,7 @@ public sealed interface Saga<A> {
     parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, f)
   }
 
-  public fun <B, C, D, E, F> parZip(
+  fun <B, C, D, E, F> parZip(
     ctx: CoroutineContext,
     b: Saga<B>,
     c: Saga<C>,
@@ -145,7 +145,7 @@ public sealed interface Saga<A> {
     parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, f)
   }
 
-  public fun <B, C, D, E, F, G> parZip(
+  fun <B, C, D, E, F, G> parZip(
     ctx: CoroutineContext,
     b: Saga<B>,
     c: Saga<C>,
@@ -157,7 +157,7 @@ public sealed interface Saga<A> {
     parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, { ff.bind() }, f)
   }
 
-  public fun <B, C, D, E, F, G, H> parZip(
+  fun <B, C, D, E, F, G, H> parZip(
     ctx: CoroutineContext,
     b: Saga<B>,
     c: Saga<C>,
@@ -170,7 +170,7 @@ public sealed interface Saga<A> {
     parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, { ff.bind() }, { g.bind() }, f)
   }
 
-  public fun <B, C, D, E, F, G, H, I> parZip(
+  fun <B, C, D, E, F, G, H, I> parZip(
     ctx: CoroutineContext,
     b: Saga<B>,
     c: Saga<C>,
@@ -200,20 +200,19 @@ public sealed interface Saga<A> {
    * @see Full for a [Saga] that defines both [action] and [Full.compensation].
    */
   @JvmInline
-  public value class Part<A>(public val action: suspend SagaEffect.() -> A) : Saga<A> {
+  value class Part<A>(val action: suspend SagaEffect.() -> A) : Saga<A> {
     override infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> = Full(action, compensate)
   }
 
   /** Full for a [Saga] that defines both [action] and [Full.compensation]. */
-  public class Full<A>(public val action: suspend SagaEffect.() -> A, public val compensation: suspend (A) -> Unit) :
-    Saga<A>
+  class Full<A>(val action: suspend SagaEffect.() -> A, val compensation: suspend (A) -> Unit) : Saga<A>
 
   /**
    * Wrapper around the `saga { }` builder.
    * This was we can run the [Saga] on a single [SagaBuilder].
    */
   @JvmInline
-  public value class Builder<A>(public val f: suspend SagaEffect.() -> A) : Saga<A> {
+  value class Builder<A>(val f: suspend SagaEffect.() -> A) : Saga<A> {
     @Suppress("FunctionName")
     internal suspend fun _transact(): A {
       val builder = SagaBuilder()
@@ -228,13 +227,13 @@ public sealed interface Saga<A> {
 }
 
 /** Receiver DSL of the `saga { }` builder. */
-public interface SagaEffect {
+interface SagaEffect {
 
   /** Runs a [Saga] and registers it's `compensation` task after the `action` finishes running */
-  public suspend fun <A> Saga<A>.bind(): A
+  suspend fun <A> Saga<A>.bind(): A
 
   /** Nested syntax for optimisation. */
-  public fun <A> saga(action: suspend SagaEffect.() -> A): Saga.Part<A> = Saga.Part(action)
+  fun <A> saga(action: suspend SagaEffect.() -> A): Saga.Part<A> = Saga.Part(action)
 }
 
 /**
@@ -247,7 +246,7 @@ public interface SagaEffect {
  * By doing so we can guarantee that any transactional like operations made by the [Saga]
  * will guarantee that it results in the correct state.
  */
-public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga.Builder(block)
+fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga.Builder(block)
 
 /**
  * Traverses the [Iterable] and composes all [Saga] returned by the applies [transform] function.
@@ -262,7 +261,7 @@ public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga.Builder(b
  * }.transact()
  * ```
  */
-public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<List<B>> =
+fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<List<B>> =
   if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
   else saga { map { transform(it).bind() } }
 
@@ -273,7 +272,7 @@ public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<L
  * i.e. when the database layer passes a `List<Saga<User>>` to the service layer,
  * to abstract over the database layer/DTO models since you might not be able to access those mappers from the whole app.
  */
-public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
+fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
   if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
   else saga { map { it.bind() } }
 
@@ -286,11 +285,11 @@ public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
  * If the resulting Saga is cancelled, then all composed [Saga]s will also cancel.
  * All actions that already ran will get compensated first.
  */
-public fun <A, B> Iterable<A>.parTraverseSaga(ctx: CoroutineContext, f: (A) -> Saga<B>): Saga<List<B>> =
+fun <A, B> Iterable<A>.parTraverseSaga(ctx: CoroutineContext, f: (A) -> Saga<B>): Saga<List<B>> =
   if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
   else saga { parTraverse(ctx) { f(it).bind() } }
 
-public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B>> =
+fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B>> =
   parTraverseSaga(Dispatchers.Default, f)
 
 /**
@@ -300,7 +299,7 @@ public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B
  * i.e. when the database layer passes a `List<Saga<User>>` to the service layer,
  * to abstract over the database layer/DTO models since you might not be able to access those mappers from the whole app.
  */
-public fun <A> Iterable<Saga<A>>.parSequence(ctx: CoroutineContext = Dispatchers.Default): Saga<List<A>> =
+fun <A> Iterable<Saga<A>>.parSequence(ctx: CoroutineContext = Dispatchers.Default): Saga<List<A>> =
   if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
   else saga { parTraverse(ctx) { it.bind() } }
 

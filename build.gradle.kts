@@ -18,7 +18,7 @@ repositories {
 }
 
 kotlin {
-  explicitApi()
+//  explicitApi()
   jvm()
   js(IR) {
     browser()

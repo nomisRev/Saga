@@ -74,11 +74,7 @@ class SagaSpec : StringSpec({
                 saga { }.compensate { throw compensation }.bind()
                 saga { throw original }.compensate { fail("Doesn't run") }.bind()
             }
-            val res = try {
-                saga.transact()
-            } catch (e: SagaFailed) {
-                e
-            }
+            val res = shouldThrow<SagaFailed> { saga.transact() }
             res shouldBe original
             res.suppressedExceptions[0] shouldBe compensation
             compensationA.await() shouldBeExactly a
