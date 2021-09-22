@@ -14,6 +14,9 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.signing.SigningExtension
 
+/**
+ * An empty [Plugin] that exposes a set of utility functions to simplify setting up MPP publishing.
+ */
 class MppPublishingPlugin : Plugin<Project> {
   override fun apply(target: Project) {}
 }
@@ -74,12 +77,15 @@ fun Project.signPublications(
     }.sign(publications)
 }
 
+/* We either try to find the existing javadocJar, or we register an empty javadocJar task */
 fun Project.javadocJar(): TaskProvider<Jar> {
   val taskName = "javadocJar"
   return try {
     tasks.named(name = taskName)
   } catch (e: UnknownTaskException) {
-    tasks.register(name = taskName) { archiveClassifier.set("javadoc") }
+    tasks.register(name = taskName) {
+      archiveClassifier by "javadoc"
+    }
   }
 }
 
@@ -94,30 +100,30 @@ fun MavenPublication.setupPom(
 ) {
   pom {
     if (!name.isPresent) {
-      name.set(artifactId)
+      name by artifactId
     }
     this@pom.description.set(description)
     this@pom.url.set(url)
     licenses {
       license {
-        name.set(licenseName)
-        this@license.url.set(licenseUrl)
+        name by licenseName
+        this@license.url by licenseUrl
       }
     }
     developers {
       developer {
-        id.set(pomDevId)
-        name.set(pomDevName)
+        id by pomDevId
+        name by pomDevName
       }
     }
     scm {
-      connection.set(gitUrl)
-      developerConnection.set(gitUrl)
-      this@scm.url.set(url)
+      connection by gitUrl
+      developerConnection by gitUrl
+      this@scm.url by url
     }
     if (gitUrl.startsWith("https://github.com")) issueManagement {
-      system.set("GitHub")
-      this@issueManagement.url.set(gitUrl.replace(".git", "/issues"))
+      system by "GitHub"
+      this@issueManagement.url by gitUrl.replace(".git", "/issues")
     }
   }
 }
