@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "io.github.nomisrev"
-version = "0.1.4"
+version = "0.0.999"
 
 repositories {
   mavenCentral()
@@ -52,9 +52,9 @@ kotlin {
     commonMain {
       dependencies {
         implementation(kotlin("stdlib"))
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-        implementation("io.arrow-kt:arrow-core:1.0.0-SNAPSHOT")
-        implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1-SNAPSHOT")
+//        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+//        implementation("io.arrow-kt:arrow-core:1.0.0-SNAPSHOT")
+//        implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1-SNAPSHOT")
       }
     }
     commonTest {
