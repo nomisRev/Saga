@@ -1,4 +1,5 @@
 rootProject.name = "saga"
+includeBuild("plugins")
 
 plugins {
     id("com.gradle.enterprise") version "3.7"

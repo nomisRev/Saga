@@ -1,4 +1,4 @@
-import java.net.URI
+import io.github.nomisrev.setupPublishing
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -6,12 +6,14 @@ plugins {
   kotlin("multiplatform") version "1.5.31"
   id("io.kotest.multiplatform") version "5.0.0.5"
   id("org.jetbrains.dokka") version "1.5.30"
+
   id("maven-publish")
   id("signing")
+  id("mpp-publish")
 }
 
 group = "io.github.nomisrev"
-version = "0.0.999"
+version = "0.0.1000"
 
 repositories {
   mavenCentral()
@@ -97,103 +99,11 @@ tasks.withType<KotlinCompile>().configureEach {
   targetCompatibility = "1.8"
 }
 
-afterEvaluate {
-
-  val pomDevId = "nomisrev"
-  val pomDevName = "Simon Vergauwen"
-  val releaseRepo = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-  val snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-
-  publishing {
-    val mavenPublications = publications.withType<MavenPublication>()
-    mavenPublications.all {
-      artifact(project.tasks.emptyJavadocJar())
-      setupPom(
-        gitUrl = "https://github.com/nomisrev/Saga.git",
-        url = "https://github.com/nomisrev/Saga",
-        description = "Functional implementation of Saga pattern in Kotlin on top of Coroutines",
-        pomDevId = pomDevId,
-        pomDevName = pomDevName
-      )
-    }
-    repositories {
-      maven(if (version.toString().endsWith("SNAPSHOT")) snapshotRepo else releaseRepo)
-    }
-    signPublications()
-  }
-}
-
-object Nullable {
-  fun <A : Any, B : Any, C : Any> zip(a: A?, b: B?, f: (A, B) -> C?): C? =
-    a?.let { aa ->
-      b?.let { bb -> f(aa, bb) }
-    }
-}
-
-fun Project.signPublications() {
-  Nullable.zip(System.getenv("SIGNINGKEY"), System.getenv("SIGNINGPASSWORD")) { key, pass ->
-    signing {
-      useInMemoryPgpKeys(key, pass)
-      sign(publishing.publications)
-    }
-  }
-}
-
-fun TaskContainer.emptyJavadocJar(): TaskProvider<Jar> {
-  val taskName = "javadocJar"
-  return try {
-    named(name = taskName)
-  } catch (e: UnknownTaskException) {
-    register(name = taskName) { archiveClassifier.set("javadoc") }
-  }
-}
-
-fun MavenPublication.setupPom(
-  gitUrl: String,
-  url: String,
-  description: String,
-  pomDevId: String,
-  pomDevName: String,
-  licenseName: String = "The Apache Software License, Version 2.0",
-  licenseUrl: String = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-) = pom {
-  if (!name.isPresent) {
-    name.set(artifactId)
-  }
-  this@pom.description.set(description)
-  this@pom.url.set(url)
-  licenses {
-    license {
-      name.set(licenseName)
-      this@license.url.set(licenseUrl)
-    }
-  }
-  developers {
-    developer {
-      id.set(pomDevId)
-      name.set(pomDevName)
-    }
-  }
-  scm {
-    connection.set(gitUrl)
-    developerConnection.set(gitUrl)
-    this@scm.url.set(url)
-  }
-  if (gitUrl.startsWith("https://github.com")) issueManagement {
-    system.set("GitHub")
-    this@issueManagement.url.set(gitUrl.replace(".git", "/issues"))
-  }
-}
-
-fun RepositoryHandler.maven(
-  uri: URI,
-  sonatypeUsername: String? = System.getenv("SONATYPE_USER"),
-  sonatypePassword: String? = System.getenv("SONATYPE_PWD"),
-): MavenArtifactRepository = maven {
-  name = "Maven"
-  url = uri
-  credentials {
-    username = sonatypeUsername
-    password = sonatypePassword
-  }
-}
+setupPublishing(
+  pomDevId = "nomisRev",
+  pomDevName = "Simon Vergauwen",
+  projectUrl = "https://github.com/nomisrev/Saga",
+  projectDesc = "Functional implementation of Saga pattern in Kotlin on top of Coroutines",
+  releaseRepo = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"),
+  snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"),
+)
