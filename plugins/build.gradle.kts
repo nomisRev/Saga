@@ -10,7 +10,7 @@ repositories {
 dependencies {
   implementation(gradleApi())
   implementation(kotlin("stdlib"))
-  implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.5.30")
+  implementation("org.jetbrains.dokka:dokka-gradle-plugin:1.5.31")
 }
 
 gradlePlugin {
