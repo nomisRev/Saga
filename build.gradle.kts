@@ -11,7 +11,7 @@ plugins {
   id("signing")      // Auto apply from mpp-publish
 
   id("documentation")
-  id("org.jetbrains.dokka") version "1.5.30" // Auto apply from documentation
+  id("org.jetbrains.dokka") version "1.5.31" // Auto apply from documentation
 }
 
 group = "io.github.nomisrev"
