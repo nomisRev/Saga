@@ -55,7 +55,7 @@ kotlin {
     commonTest {
       dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-        implementation("io.kotest:kotest-framework-engine:5.0.0.M2")
+        implementation("io.kotest:kotest-framework-engine:5.0.0.578-SNAPSHOT")
         implementation("io.kotest:kotest-assertions-core:5.0.0.M2")
         implementation("io.kotest:kotest-property:5.0.0.M2")
       }
