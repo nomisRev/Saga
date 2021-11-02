@@ -8,10 +8,8 @@ on:
 env:
   JAVA_OPTS: -Xms512m -Xmx1024m
   GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
-  SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
-  SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
-  ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_signingKey }}
-  ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
+  SONATYPE_USER: '${{ secrets.SONATYPE_USER }}'
+  SONATYPE_PWD: '${{ secrets.SONATYPE_PWD }}'
   OSS_USER: '${{ secrets.OSS_USER }}'
   OSS_TOKEN: '${{ secrets.OSS_TOKEN }}'
   OSS_STAGING_PROFILE_ID: '${{ secrets.OSS_STAGING_PROFILE_ID }}'
