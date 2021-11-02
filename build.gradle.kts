@@ -73,3 +73,12 @@ setupDokka(
   baseUrl = "https://github.com/nomisRev/Saga/tree/master",
   paths = listOf("README.MD")
 )
+
+nexusPublishing {
+  repositories {
+    sonatype {
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+    }
+  }
+}
