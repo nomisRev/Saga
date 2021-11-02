@@ -56,7 +56,7 @@ kotlin {
       dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
         implementation("io.kotest:kotest-framework-engine:5.0.0.M3")
-        implementation("io.kotest:kotest-assertions-core:5.0.0.M3")
+        implementation("io.kotest:kotest-assertions-core:5.0.0.688-SNAPSHOT")
         implementation("io.kotest:kotest-property:5.0.0.M3")
       }
     }
