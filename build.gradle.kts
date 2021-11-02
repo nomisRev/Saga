@@ -6,7 +6,7 @@ plugins {
   id("io.kotest.multiplatform") version "5.0.0.5"
 
   id("documentation")
-  id("org.jetbrains.dokka") version "1.5.30" // Auto apply from documentation
+  id("org.jetbrains.dokka") version "1.5.31" // Auto apply from documentation
 
   id("io.arrow-kt.arrow-gradle-config-nexus") version "0.5.1"
   id("io.arrow-kt.arrow-gradle-config-publish-multiplatform") version "0.5.1"
@@ -50,9 +50,9 @@ kotlin {
     commonTest {
       dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-        implementation("io.kotest:kotest-framework-engine:5.0.0.M2")
-        implementation("io.kotest:kotest-assertions-core:5.0.0.M2")
-        implementation("io.kotest:kotest-property:5.0.0.M2")
+        implementation("io.kotest:kotest-framework-engine:5.0.0.M3")
+        implementation("io.kotest:kotest-assertions-core:5.0.0.M3")
+        implementation("io.kotest:kotest-property:5.0.0.M3")
       }
     }
   }
