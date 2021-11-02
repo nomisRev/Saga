@@ -12,6 +12,8 @@ plugins {
   id("io.arrow-kt.arrow-gradle-config-publish-multiplatform") version "0.5.1"
 }
 
+group = "io.github.nomisrev"
+
 repositories {
   mavenCentral()
 }
