@@ -37,9 +37,8 @@ kotlin {
   watchosSimulatorArm64()
   iosArm64()
   iosArm32()
-// Not supported by Kotest
-//  iosX64()
-//  iosSimulatorArm64()
+  iosX64()
+  iosSimulatorArm64()
 
   sourceSets {
     commonMain {
