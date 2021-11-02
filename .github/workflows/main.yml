@@ -34,7 +34,7 @@ jobs:
            java-version: '8'
 
       - name: Build
-        run: ./gradlew publish --scan --stacktrace
+        run: ./gradlew publishToSonatype --scan --stacktrace
   publish_windows:
     env:
       SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
@@ -49,4 +49,4 @@ jobs:
           fetch-depth: 0
 
       - name: Build
-        run: ./gradlew publishMingwX64PublicationToMavenRepository --scan --stacktrace
+        run: ./gradlew publishToSonatype --scan --stacktrace
