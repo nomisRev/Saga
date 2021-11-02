@@ -1,21 +1,16 @@
 import io.github.nomisrev.setupDokka
-import io.github.nomisrev.setupPublishing
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   kotlin("multiplatform") version "1.5.31"
   id("io.kotest.multiplatform") version "5.0.0.5"
 
-  id("mpp-publish")
-  id("maven-publish") // Auto apply from mpp-publish
-  id("signing")      // Auto apply from mpp-publish
-
   id("documentation")
   id("org.jetbrains.dokka") version "1.5.30" // Auto apply from documentation
-}
 
-group = "io.github.nomisrev"
-version = "0.0.1000"
+  id("io.arrow-kt.arrow-gradle-config-nexus") version "0.5.1"
+  id("io.arrow-kt.arrow-gradle-config-publish-multiplatform") version "0.5.1"
+}
 
 repositories {
   mavenCentral()
@@ -72,15 +67,6 @@ tasks.withType<KotlinCompile>().configureEach {
   sourceCompatibility = "1.8"
   targetCompatibility = "1.8"
 }
-
-setupPublishing(
-  pomDevId = "nomisRev",
-  pomDevName = "Simon Vergauwen",
-  projectUrl = "https://github.com/nomisrev/Saga",
-  projectDesc = "Functional implementation of Saga pattern in Kotlin on top of Coroutines",
-  releaseRepo = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"),
-  snapshotRepo = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"),
-)
 
 setupDokka(
   outputDirectory = rootDir.resolve("docs"),
