@@ -34,12 +34,6 @@ jobs:
           key: ${{ runner.os }}-check-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-check-
 
-      - name: Setup JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '8'
-
       - name: Run Ubuntu tests
         if: matrix.os == 'ubuntu-latest'
         run: ./gradlew check --scan
