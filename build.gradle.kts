@@ -1,71 +1,40 @@
-import io.github.nomisrev.setupDokka
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("multiplatform") version "1.5.31"
-  id("io.kotest.multiplatform") version "5.0.0.5"
-
-  id("documentation")
-  id("org.jetbrains.dokka") version "1.5.31" // Auto apply from documentation
-
-  id("io.arrow-kt.arrow-gradle-config-nexus") version "0.5.1"
-  id("io.arrow-kt.arrow-gradle-config-publish-multiplatform") version "0.5.1"
-}
-
-group = "io.github.nomisrev"
-
-repositories {
-  mavenCentral()
+  alias(libs.plugins.kotest.multiplatform)
+  alias(libs.plugins.kotlin.multiplatform)
+  alias(libs.plugins.arrowGradleConfig.multiplatform)
+  alias(libs.plugins.arrowGradleConfig.nexus)
+  alias(libs.plugins.arrowGradleConfig.publishMultiplatform)
+  alias(libs.plugins.arrowGradleConfig.formatter)
+  alias(libs.plugins.githooks)
+  alias(libs.plugins.dokka)
 }
 
 kotlin {
-  explicitApi()
-  jvm()
-  js(IR) {
-    browser()
-    nodejs()
-  }
-  linuxX64()
-  mingwX64()
-  macosX64()
-  macosArm64()
-  tvos()
-  tvosSimulatorArm64()
-  watchosArm32()
-  watchosX86()
-  watchosX64()
-  watchosSimulatorArm64()
-  iosArm64()
-  iosArm32()
-  iosX64()
-  iosSimulatorArm64()
-
   sourceSets {
     commonMain {
       dependencies {
-        implementation(kotlin("stdlib"))
-        implementation("io.arrow-kt:arrow-core:1.0.1")
-        implementation("io.arrow-kt:arrow-fx-coroutines:1.0.1")
+        implementation(libs.kotlin.stdlibCommon)
+        implementation(libs.arrow.core)
+        implementation(libs.arrow.fx)
       }
     }
     commonTest {
       dependencies {
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
-        implementation("io.kotest:kotest-framework-engine:5.0.0.M3")
-        implementation("io.kotest:kotest-assertions-core:5.0.0.M3")
-        implementation("io.kotest:kotest-property:5.0.0.M3")
+        implementation(libs.coroutines.core)
+        implementation(libs.kotest.frameworkEngine)
+        implementation(libs.kotest.assertionsCore)
+        implementation(libs.kotest.property)
       }
     }
     named("jvmTest") {
       dependencies {
-        implementation("io.kotest:kotest-runner-junit5:5.0.0.M3")
+        implementation(libs.kotest.runnerJUnit5)
       }
     }
   }
-}
-
-tasks.withType<Test>().configureEach {
-  useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile>().configureEach {
@@ -74,12 +43,38 @@ tasks.withType<KotlinCompile>().configureEach {
   targetCompatibility = "1.8"
 }
 
-setupDokka(
-  outputDirectory = rootDir.resolve("docs"),
-  name = "Saga",
-  baseUrl = "https://github.com/nomisRev/Saga/tree/master",
-  paths = listOf("README.MD")
-)
+gitHooks {
+  setHooks(
+    mapOf(
+      "pre-commit" to "spotlessApply",
+      "pre-push" to "spotlessCheck"
+    )
+  )
+}
+
+infix fun <T> Property<T>.by(value: T) {
+  set(value)
+}
+
+tasks.withType<DokkaTask>().configureEach {
+  outputDirectory by rootDir.resolve("docs")
+  moduleName by "Saga"
+  dokkaSourceSets.apply {
+    named("commonMain") {
+      perPackageOption {
+        matchingRegex.set(".*\\.internal.*")
+        suppress by true
+      }
+      skipDeprecated by true
+      includes.from("README.MD")
+      sourceLink {
+        localDirectory.set(project.file("src/commonMain/kotlin"))
+        remoteUrl.set(project.uri("https://github.com/nomisRev/Saga/tree/master/src/commonMain/kotlin").toURL())
+        remoteLineSuffix.set("#L")
+      }
+    }
+  }
+}
 
 nexusPublishing {
   repositories {
