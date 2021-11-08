@@ -6,7 +6,7 @@ dokka = "1.5.31"
 kotest = "5.0.0.M3"
 kotestGradle = "5.0.0.5"
 kotlin = "1.5.31"
-kotlinBinaryCompatibilityValidator = "0.7.1"
+kotlinBinaryCompatibilityValidator = "0.8.0"
 githooks = "0.0.2"
 
 [libraries]
