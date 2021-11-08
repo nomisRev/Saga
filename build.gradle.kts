@@ -10,6 +10,13 @@ plugins {
   alias(libs.plugins.arrowGradleConfig.formatter)
   alias(libs.plugins.githooks)
   alias(libs.plugins.dokka)
+  alias(libs.plugins.kover)
+}
+
+allprojects {
+  repositories {
+    mavenCentral()
+  }
 }
 
 kotlin {
