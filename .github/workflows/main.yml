@@ -24,7 +24,7 @@ jobs:
       SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
 
-    runs-on: macos-latest
+    runs-on: macos-11.0
     timeout-minutes: 120
 
     steps:
