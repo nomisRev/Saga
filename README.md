@@ -20,7 +20,7 @@ The saga design pattern is a way to manage data consistency across microservices
 
 A [Saga] is useful when you need to manage data in a consistent manner across services in distributed transaction scenarios.
 Or when you need to compose multiple [action]s with a [compensation] that needs to run in a transaction like style.
-For example, let's say that we have following domain types `Order`, `Payment`.
+For example, let's say that we have the following domain types `Order`, `Payment`.
 
 ```kotlin
 data class Order(val id: UUID, val amount: Long)

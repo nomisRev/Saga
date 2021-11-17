@@ -20,7 +20,7 @@ import kotlinx.coroutines.Dispatchers
  * across services in distributed transaction scenarios. Or when you need to compose multiple
  * `actions` with a `compensation` that needs to run in a transaction like style.
  *
- * For example, let's say that we have following domain types `Order`, `Payment`.
+ * For example, let's say that we have the following domain types `Order`, `Payment`.
  *
  * ```kotlin
  * data class Order(val id: UUID, val amount: Long)
