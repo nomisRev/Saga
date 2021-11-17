@@ -3,12 +3,12 @@ arrow = "1.0.1"
 arrowGradleConfig = "0.5.1"
 coroutines = "1.5.2"
 dokka = "1.5.31"
-kotest = "5.0.0.M4"
-kotestGradle = "5.0.0.5"
-kotlin = "1.6.0-RC2"
+kotest = "5.0.0.RC"
+kotestGradle = "5.0.0.6"
+kotlin = "1.6.0"
 kotlinBinaryCompatibilityValidator = "0.8.0"
 githooks = "0.0.2"
-kover = "0.4.1"
+kover = "0.4.2"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }

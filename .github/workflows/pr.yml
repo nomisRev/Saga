@@ -14,7 +14,7 @@ jobs:
   check:
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest ]
+        os: [ windows-latest, macos-11.0 ]
     runs-on: ${{matrix.os}}
     timeout-minutes: 20
     steps:
@@ -34,11 +34,11 @@ jobs:
           key: ${{ runner.os }}-check-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-check-
 
-      - name: Run Ubuntu tests
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run MacOs check
+        if: matrix.os == 'macos-11.0'
         run: ./gradlew check --scan
 
-      - name: Run Windows tests
+      - name: Run Windows mingwX64Test
         if: matrix.os == 'windows-latest'
         run: ./gradlew mingwX64Test --scan
 
