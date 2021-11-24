@@ -52,21 +52,3 @@ jobs:
         with:
           name: error-report
           path: build-reports.zip
-
-  docs:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Dokka
-        id: Dokka
-        continue-on-error: true
-        run: ./gradlew dokkaHtml --scan
-
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Auto update docs
