@@ -72,8 +72,8 @@ tasks.withType<DokkaTask>().configureEach {
         matchingRegex.set(".*\\.internal.*")
         suppress by true
       }
+      includes.from("README.md")
       skipDeprecated by true
-      includes.from("README.MD")
       sourceLink {
         localDirectory.set(project.file("src/commonMain/kotlin"))
         remoteUrl.set(project.uri("https://github.com/nomisRev/Saga/tree/master/src/commonMain/kotlin").toURL())

@@ -67,7 +67,6 @@ jobs:
 
       - name: Dokka
         id: Dokka
-        continue-on-error: true
         run: ./gradlew dokkaHtml --scan
 
       - uses: stefanzweifel/git-auto-commit-action@v4
