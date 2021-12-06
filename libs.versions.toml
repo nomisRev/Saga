@@ -4,7 +4,6 @@ arrowGradleConfig = "0.5.1"
 coroutines = "1.5.2"
 dokka = "1.6.0"
 kotest = "5.0.1"
-kotestGradle = "5.0.1"
 kotlin = "1.6.0"
 kotlinBinaryCompatibilityValidator = "0.8.0"
 githooks = "0.0.2"
@@ -32,7 +31,7 @@ arrowGradleConfig-nexus = { id = "io.arrow-kt.arrow-gradle-config-nexus", versio
 arrowGradleConfig-publishMultiplatform = { id = "io.arrow-kt.arrow-gradle-config-publish-multiplatform", version.ref = "arrowGradleConfig" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
-kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotestGradle" }
+kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-binaryCompatibilityValidator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "kotlinBinaryCompatibilityValidator" }
 githooks = { id = "com.github.jakemarsden.git-hooks", version.ref = "githooks" }
