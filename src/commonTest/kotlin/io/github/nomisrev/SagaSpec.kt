@@ -103,32 +103,29 @@ class SagaSpec :
     }
 
     "Saga can traverse" {
-      checkAll(Arb.list(Arb.int())) { ints ->
-        ints.traverseSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe
-          ints
+      checkAll(Arb.list(Arb.int())) { iis ->
+        iis.traverseSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe iis
       }
     }
 
     "Saga can sequence" {
-      checkAll(Arb.list(Arb.int())) { ints ->
-        ints.map { saga { it }.compensate { fail("Doesn't run") } }.sequence().transact() shouldBe
-          ints
+      checkAll(Arb.list(Arb.int())) { iis ->
+        iis.map { saga { it }.compensate { fail("Doesn't run") } }.sequence().transact() shouldBe iis
       }
     }
 
     "Saga can parTraverse" {
-      checkAll(Arb.list(Arb.int())) { ints ->
-        ints.parTraverseSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe
-          ints
+      checkAll(Arb.list(Arb.int())) { iis ->
+        iis.parTraverseSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe iis
       }
     }
 
     "Saga can parSequence" {
-      checkAll(Arb.list(Arb.int())) { ints ->
-        ints
+      checkAll(Arb.list(Arb.int())) { iis ->
+        iis
           .map { saga { it }.compensate { fail("Doesn't run") } }
           .parSequence()
-          .transact() shouldBe ints
+          .transact() shouldBe iis
       }
     }
 

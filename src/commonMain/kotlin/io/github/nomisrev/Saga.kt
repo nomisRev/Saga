@@ -1,18 +1,16 @@
-@file:Suppress("unused")
-
 package io.github.nomisrev
 
 import arrow.continuations.generic.AtomicRef
 import arrow.continuations.generic.updateAndGet
 import arrow.core.nonFatalOrThrow
-import arrow.core.prependTo
-import arrow.fx.coroutines.Platform
 import arrow.fx.coroutines.parTraverse
 import arrow.fx.coroutines.parZip
 import kotlin.coroutines.CoroutineContext
-import kotlin.jvm.JvmInline
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
  * The saga design pattern is a way to manage data consistency across microservices in distributed
@@ -20,19 +18,19 @@ import kotlinx.coroutines.Dispatchers
  * across services in distributed transaction scenarios. Or when you need to compose multiple
  * `actions` with a `compensation` that needs to run in a transaction like style.
  *
- * For example, let's say that we have following domain types `Order`, `Payment`.
+ * For example, let's say that we have the following domain types `Order`, `Payment`.
  *
  * ```kotlin
  * data class Order(val id: UUID, val amount: Long)
  * data class Payment(val id: UUID, val orderId: UUID)
  * ```
  *
- * The creation of an `Order` can only remain when a payment has been made. In SQL you might run
- * this inside a transaction, which can automatically rollback the creation of the `Order` when the
+ * The creation of an `Order` can only remain when a payment has been made. In SQL, you might run
+ * this inside a transaction, which can automatically roll back the creation of the `Order` when the
  * creation of the Payment fails.
  *
- * When you need to do this across distributed services, or a multiple atomic references, etc you
- * need to manually facilitate the rolling back of the performed actions, or compensating actions.
+ * When you need to do this across distributed services, or a multiple atomic references, etc.
+ * You need to manually facilitate the rolling back of the performed actions, or compensating actions.
  *
  * The [Saga] type, and [saga] DSL remove all the boilerplate of manually having to facilitate this
  * with a convenient suspending DSL.
@@ -57,7 +55,10 @@ import kotlinx.coroutines.Dispatchers
  * }
  * ```
  */
-public sealed interface Saga<A> {
+public class Saga<A>(
+  public val action: suspend SagaEffect.() -> A,
+  public val compensation: suspend (A) -> Unit
+) {
 
   /**
    * Add a compensating action to a [Saga]. A single [Saga] can have many compensating actions, they
@@ -77,14 +78,9 @@ public sealed interface Saga<A> {
    * ```
    */
   public infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
-    when (this) {
-      is Builder -> Full({ f(this) }, compensate)
-      is Full ->
-        Full(action) { a ->
-          compensate(a)
-          this.compensation(a)
-        }
-      is Part -> Full(action, compensate)
+    Saga(action) { a ->
+      compensation(a)
+      compensate(a)
     }
 
   /**
@@ -92,12 +88,15 @@ public sealed interface Saga<A> {
    * fails then all compensating actions are guaranteed to run. When a compensating action failed it
    * will be ignored, and the other compensating actions will continue to be run.
    */
-  public suspend fun transact(): A =
-    when (this) {
-      is Full -> saga { bind() }.transact()
-      is Part -> saga { action(this) }.transact()
-      is Builder -> _transact()
+  public suspend fun transact(): A {
+    val builder = SagaBuilder()
+    return guaranteeCase({ action(builder) }) { exitCase ->
+      when (exitCase) {
+        is ExitCase.Completed -> Unit
+        else -> builder.totalCompensation()
+      }
     }
+  }
 
   /**
    * Runs multiple [Saga]s in parallel and combines the result with the [transform] function. When
@@ -212,40 +211,6 @@ public sealed interface Saga<A> {
       f
     )
   }
-
-  /**
-   * A partial [Saga], tt only defines the [action].
-   * @see Full for a [Saga] that defines both [action] and [Full.compensation].
-   */
-  @JvmInline
-  public value class Part<A>(public val action: suspend SagaEffect.() -> A) : Saga<A> {
-    override infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
-      Full(action, compensate)
-  }
-
-  /** Full for a [Saga] that defines both [action] and [Full.compensation]. */
-  public class Full<A>(
-    public val action: suspend SagaEffect.() -> A,
-    public val compensation: suspend (A) -> Unit
-  ) : Saga<A>
-
-  /**
-   * Wrapper around the `saga { }` builder. This was we can run the [Saga] on a single [SagaBuilder]
-   * .
-   */
-  @JvmInline
-  public value class Builder<A>(public val f: suspend SagaEffect.() -> A) : Saga<A> {
-    @Suppress("FunctionName")
-    internal suspend fun _transact(): A {
-      val builder = SagaBuilder()
-      return guaranteeCase({ f(builder) }) { exitCase ->
-        when (exitCase) {
-          is ExitCase.Completed -> Unit
-          else -> builder.totalCompensation()
-        }
-      }
-    }
-  }
 }
 
 /** Receiver DSL of the `saga { }` builder. */
@@ -253,15 +218,12 @@ public interface SagaEffect {
 
   /** Runs a [Saga] and registers it's `compensation` task after the `action` finishes running */
   public suspend fun <A> Saga<A>.bind(): A
-
-  /** Nested syntax for optimisation. */
-  public fun <A> saga(action: suspend SagaEffect.() -> A): Saga.Part<A> = Saga.Part(action)
 }
 
 /**
- * The Saga builder which exposes the [SagaEffect.bind] and [SagaEffect.saga] API. The `saga`
- * builder uses the suspension system to run actions, and automatically register their compensating
- * actions.
+ * The Saga builder which exposes the [SagaEffect.bind].
+ * The `saga` builder uses the suspension system to run actions,
+ * and automatically register their compensating actions.
  *
  * When the resulting [Saga] fails it will run all the required compensating actions, also when the
  * [Saga] gets cancelled it will respect its compensating actions before returning.
@@ -269,7 +231,7 @@ public interface SagaEffect {
  * By doing so we can guarantee that any transactional like operations made by the [Saga] will
  * guarantee that it results in the correct state.
  */
-public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga.Builder(block)
+public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga(block) {}
 
 /**
  * Traverses the [Iterable] and composes all [Saga] returned by the applies [transform] function.
@@ -285,7 +247,7 @@ public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga.Builder(b
  * ```
  */
 public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<List<B>> =
-  if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+  if (this is Collection && this.isEmpty()) Saga({ emptyList() }) {}
   else saga { map { transform(it).bind() } }
 
 /**
@@ -297,15 +259,15 @@ public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<L
  * app.
  */
 public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
-  if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+  if (this is Collection && isEmpty()) Saga({ emptyList() }) { }
   else saga { map { it.bind() } }
 
 /**
- * Parallel version of [traverseSaga], it has the same semantics as [parZip] in terms of parallelism
+ * Parallel version of [traverseSaga], it has the same semantics as [Saga.parZip] in terms of parallelism
  * and cancellation.
  *
- * When one of the two [Saga] fails then it will cancel the other, if the other [Saga] already
- * finished then its compensating action will be run.
+ * When one of the two [Saga] fails then it will cancel the other,
+ * if the other [Saga] has already finished then its compensating action will be run.
  *
  * If the resulting Saga is cancelled, then all composed [Saga]s will also cancel. All actions that
  * already ran will get compensated first.
@@ -314,7 +276,7 @@ public fun <A, B> Iterable<A>.parTraverseSaga(
   ctx: CoroutineContext,
   f: (A) -> Saga<B>
 ): Saga<List<B>> =
-  if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+  if (this is Collection && isEmpty()) Saga({ emptyList() }) { }
   else saga { parTraverse(ctx) { f(it).bind() } }
 
 public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B>> =
@@ -331,7 +293,7 @@ public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B
 public fun <A> Iterable<Saga<A>>.parSequence(
   ctx: CoroutineContext = Dispatchers.Default
 ): Saga<List<A>> =
-  if (this is Collection && this.isEmpty()) Saga.Part { emptyList() }
+  if (this is Collection && this.isEmpty()) Saga({ emptyList() }) { }
   else saga { parTraverse(ctx) { it.bind() } }
 
 // Internal implementation of the `saga { }` builder.
@@ -341,37 +303,68 @@ internal class SagaBuilder(
 ) : SagaEffect {
 
   override suspend fun <A> Saga<A>.bind(): A =
-    when (this) {
-      is Saga.Full -> bind()
-      is Saga.Part -> action()
-      is Saga.Builder -> bind()
-    }
-
-  private suspend fun <A> Saga.Full<A>.bind() =
     guaranteeCase({ action() }) { exitCase ->
       when (exitCase) {
         is ExitCase.Completed<A> ->
-          stack.updateAndGet { suspend { compensation(exitCase.value) } prependTo it }
-        // This action failed so we have no compensate to push on the stack
-        // the compensate stack will run in the `transact` stage, this is just the builder
+          stack.updateAndGet { listOf(suspend { compensation(exitCase.value) }) + it }
+        // This action failed, so we have no compensate to push on the stack
+        // the compensation stack will run in the `transact` stage, this is just the builder
         is ExitCase.Cancelled -> Unit
         is ExitCase.Failure -> Unit
       }
     }
 
-  private suspend fun <A> Saga.Builder<A>.bind() = f(this@SagaBuilder)
-
   @PublishedApi
   internal suspend fun totalCompensation() {
-    val errors =
-      stack.get().mapNotNull { finalizer ->
-        try {
-          finalizer()
-          null
-        } catch (e: Throwable) {
-          e.nonFatalOrThrow()
-        }
+    stack.get().mapNotNull { finalizer ->
+      try {
+        finalizer()
+        null
+      } catch (e: Throwable) {
+        e.nonFatalOrThrow()
       }
-    Platform.composeErrors(all = errors)?.let { throw it }
+    }.reduceOrNull { acc, throwable ->
+      acc.apply {
+        addSuppressed(throwable)
+      }
+    }?.let { throw it }
   }
+}
+
+internal sealed class ExitCase<out A> {
+  data class Completed<A>(val value: A) : ExitCase<A>() {
+    override fun toString(): String = "ExitCase.Completed"
+  }
+
+  data class Cancelled(val exception: CancellationException) : ExitCase<Nothing>()
+  data class Failure(val failure: Throwable) : ExitCase<Nothing>()
+}
+
+@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
+private suspend fun <A> guaranteeCase(
+  fa: suspend () -> A,
+  finalizer: suspend (ExitCase<A>) -> Unit
+): A {
+  val res =
+    try {
+      fa()
+    } catch (e: CancellationException) {
+      runReleaseAndRethrow(e) { finalizer(ExitCase.Cancelled(e)) }
+    } catch (t: Throwable) {
+      runReleaseAndRethrow(t.nonFatalOrThrow()) { finalizer(ExitCase.Failure(t.nonFatalOrThrow())) }
+    }
+  withContext(NonCancellable) { finalizer(ExitCase.Completed(res)) }
+  return res
+}
+
+private suspend fun runReleaseAndRethrow(
+  original: Throwable,
+  f: suspend () -> Unit
+): Nothing {
+  try {
+    withContext(NonCancellable) { f() }
+  } catch (e: Throwable) {
+    original.addSuppressed(e.nonFatalOrThrow())
+  }
+  throw original
 }

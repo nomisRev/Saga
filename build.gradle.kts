@@ -5,9 +5,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   alias(libs.plugins.kotest.multiplatform)
   alias(libs.plugins.kotlin.multiplatform)
-  alias(libs.plugins.arrowGradleConfig.multiplatform)
+  alias(libs.plugins.arrowGradleConfig.kotlin)
   alias(libs.plugins.arrowGradleConfig.nexus)
-  alias(libs.plugins.arrowGradleConfig.publishMultiplatform)
+  alias(libs.plugins.arrowGradleConfig.publish)
   alias(libs.plugins.arrowGradleConfig.formatter)
   alias(libs.plugins.githooks)
   alias(libs.plugins.dokka)
@@ -53,10 +53,7 @@ tasks.withType<KotlinCompile>().configureEach {
 
 gitHooks {
   setHooks(
-    mapOf(
-      "pre-commit" to "spotlessApply",
-      "pre-push" to "spotlessCheck"
-    )
+    mapOf("pre-commit" to "spotlessApply")
   )
 }
 
