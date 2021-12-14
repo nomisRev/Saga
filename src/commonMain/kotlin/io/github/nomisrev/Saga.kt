@@ -29,8 +29,8 @@ import kotlinx.coroutines.withContext
  * this inside a transaction, which can automatically roll back the creation of the `Order` when the
  * creation of the Payment fails.
  *
- * When you need to do this across distributed services, or a multiple atomic references, etc.
- * You need to manually facilitate the rolling back of the performed actions, or compensating actions.
+ * When you need to do this across distributed services, or a multiple atomic references, etc. You
+ * need to manually facilitate the rolling back of the performed actions, or compensating actions.
  *
  * The [Saga] type, and [saga] DSL remove all the boilerplate of manually having to facilitate this
  * with a convenient suspending DSL.
@@ -221,9 +221,8 @@ public interface SagaEffect {
 }
 
 /**
- * The Saga builder which exposes the [SagaEffect.bind].
- * The `saga` builder uses the suspension system to run actions,
- * and automatically register their compensating actions.
+ * The Saga builder which exposes the [SagaEffect.bind]. The `saga` builder uses the suspension
+ * system to run actions, and automatically register their compensating actions.
  *
  * When the resulting [Saga] fails it will run all the required compensating actions, also when the
  * [Saga] gets cancelled it will respect its compensating actions before returning.
@@ -259,15 +258,14 @@ public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<L
  * app.
  */
 public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
-  if (this is Collection && isEmpty()) Saga({ emptyList() }) { }
-  else saga { map { it.bind() } }
+  if (this is Collection && isEmpty()) Saga({ emptyList() }) {} else saga { map { it.bind() } }
 
 /**
- * Parallel version of [traverseSaga], it has the same semantics as [Saga.parZip] in terms of parallelism
- * and cancellation.
+ * Parallel version of [traverseSaga], it has the same semantics as [Saga.parZip] in terms of
+ * parallelism and cancellation.
  *
- * When one of the two [Saga] fails then it will cancel the other,
- * if the other [Saga] has already finished then its compensating action will be run.
+ * When one of the two [Saga] fails then it will cancel the other, if the other [Saga] has already
+ * finished then its compensating action will be run.
  *
  * If the resulting Saga is cancelled, then all composed [Saga]s will also cancel. All actions that
  * already ran will get compensated first.
@@ -276,7 +274,7 @@ public fun <A, B> Iterable<A>.parTraverseSaga(
   ctx: CoroutineContext,
   f: (A) -> Saga<B>
 ): Saga<List<B>> =
-  if (this is Collection && isEmpty()) Saga({ emptyList() }) { }
+  if (this is Collection && isEmpty()) Saga({ emptyList() }) {}
   else saga { parTraverse(ctx) { f(it).bind() } }
 
 public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B>> =
@@ -293,7 +291,7 @@ public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B
 public fun <A> Iterable<Saga<A>>.parSequence(
   ctx: CoroutineContext = Dispatchers.Default
 ): Saga<List<A>> =
-  if (this is Collection && this.isEmpty()) Saga({ emptyList() }) { }
+  if (this is Collection && this.isEmpty()) Saga({ emptyList() }) {}
   else saga { parTraverse(ctx) { it.bind() } }
 
 // Internal implementation of the `saga { }` builder.
@@ -316,18 +314,18 @@ internal class SagaBuilder(
 
   @PublishedApi
   internal suspend fun totalCompensation() {
-    stack.get().mapNotNull { finalizer ->
-      try {
-        finalizer()
-        null
-      } catch (e: Throwable) {
-        e.nonFatalOrThrow()
+    stack
+      .get()
+      .mapNotNull { finalizer ->
+        try {
+          finalizer()
+          null
+        } catch (e: Throwable) {
+          e.nonFatalOrThrow()
+        }
       }
-    }.reduceOrNull { acc, throwable ->
-      acc.apply {
-        addSuppressed(throwable)
-      }
-    }?.let { throw it }
+      .reduceOrNull { acc, throwable -> acc.apply { addSuppressed(throwable) } }
+      ?.let { throw it }
   }
 }
 
@@ -357,10 +355,7 @@ private suspend fun <A> guaranteeCase(
   return res
 }
 
-private suspend fun runReleaseAndRethrow(
-  original: Throwable,
-  f: suspend () -> Unit
-): Nothing {
+private suspend fun runReleaseAndRethrow(original: Throwable, f: suspend () -> Unit): Nothing {
   try {
     withContext(NonCancellable) { f() }
   } catch (e: Throwable) {
