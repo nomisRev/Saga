@@ -9,15 +9,8 @@ plugins {
   alias(libs.plugins.arrowGradleConfig.nexus)
   alias(libs.plugins.arrowGradleConfig.publish)
   alias(libs.plugins.arrowGradleConfig.formatter)
-  alias(libs.plugins.githooks)
   alias(libs.plugins.dokka)
   alias(libs.plugins.kover)
-}
-
-allprojects {
-  repositories {
-    mavenCentral()
-  }
 }
 
 kotlin {
@@ -49,12 +42,6 @@ tasks.withType<KotlinCompile>().configureEach {
   kotlinOptions.jvmTarget = "1.8"
   sourceCompatibility = "1.8"
   targetCompatibility = "1.8"
-}
-
-gitHooks {
-  setHooks(
-    mapOf("pre-commit" to "spotlessApply")
-  )
 }
 
 infix fun <T> Property<T>.by(value: T) {
