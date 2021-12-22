@@ -2,6 +2,9 @@
 
 package io.github.nomisrev
 
+import arrow.fx.coroutines.parSequence
+import arrow.fx.coroutines.parTraverse
+import arrow.fx.coroutines.parZip
 import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
@@ -104,7 +107,7 @@ class SagaSpec :
 
     "Saga can traverse" {
       checkAll(Arb.list(Arb.int())) { iis ->
-        iis.traverseSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe iis
+        iis.mapSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe iis
       }
     }
 
@@ -117,15 +120,19 @@ class SagaSpec :
 
     "Saga can parTraverse" {
       checkAll(Arb.list(Arb.int())) { iis ->
-        iis.parTraverseSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe
-          iis
+        saga { iis.parTraverse { saga { it }.compensate { fail("Doesn't run") }.bind() } }
+          .transact() shouldBe iis
       }
     }
 
     "Saga can parSequence" {
       checkAll(Arb.list(Arb.int())) { iis ->
-        iis.map { saga { it }.compensate { fail("Doesn't run") } }.parSequence().transact() shouldBe
-          iis
+        saga {
+            iis
+              .map { suspend { saga { it }.compensate { fail("Doesn't run") }.bind() } }
+              .parSequence()
+          }
+          .transact() shouldBe iis
       }
     }
 
@@ -133,18 +140,26 @@ class SagaSpec :
       checkAll(Arb.int()) { a ->
         val compensationA = CompletableDeferred<Int>()
         val latch = CompletableDeferred<Unit>()
-        val saga =
-          saga {
-            latch.complete(Unit)
-            a
-          }
-            .compensate { compensationA.complete(it) }
-            .parZip(
+        val saga = saga {
+          parZip(
+            {
               saga {
-                latch.await()
-                throw SagaFailed()
-              } compensate { fail("Doesn't run") }
-            ) { _, _ -> }
+                  latch.complete(Unit)
+                  a
+                }
+                .compensate { compensationA.complete(it) }
+                .bind()
+            },
+            {
+              saga {
+                  latch.await()
+                  throw SagaFailed()
+                }
+                .compensate { fail("Doesn't run") }
+                .bind()
+            }
+          ) { _, _ -> }
+        }
         shouldThrow<SagaFailed> { saga.transact() }
         compensationA.await() shouldBeExactly a
       }
@@ -154,18 +169,26 @@ class SagaSpec :
       checkAll(Arb.int()) { a ->
         val compensationB = CompletableDeferred<Int>()
         val latch = CompletableDeferred<Unit>()
-        val saga =
-          saga {
-            latch.await()
-            throw SagaFailed()
-          }
-            .compensate { fail("Doesn't run") }
-            .parZip(
+        val saga = saga {
+          parZip(
+            {
               saga {
-                latch.complete(Unit)
-                a
-              } compensate { compensationB.complete(it) }
-            ) { _, _ -> }
+                  latch.await()
+                  throw SagaFailed()
+                }
+                .compensate { fail("Doesn't run") }
+                .bind()
+            },
+            {
+              saga {
+                  latch.complete(Unit)
+                  a
+                }
+                .compensate { compensationB.complete(it) }
+                .bind()
+            }
+          ) { _, _ -> }
+        }
         shouldThrow<SagaFailed> { saga.transact() }
         compensationB.await() shouldBeExactly a
       }

@@ -6,11 +6,10 @@ plugins {
   alias(libs.plugins.kotest.multiplatform)
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.arrowGradleConfig.kotlin)
-  alias(libs.plugins.arrowGradleConfig.nexus)
-  alias(libs.plugins.arrowGradleConfig.publish)
   alias(libs.plugins.arrowGradleConfig.formatter)
   alias(libs.plugins.dokka)
   alias(libs.plugins.kover)
+  id("io.github.nomisrev.mpp-publish")
 }
 
 kotlin {
@@ -18,13 +17,14 @@ kotlin {
     commonMain {
       dependencies {
         implementation(libs.kotlin.stdlibCommon)
-        implementation(libs.arrow.core)
-        implementation(libs.arrow.fx)
+        implementation(libs.coroutines.core)
       }
     }
     commonTest {
       dependencies {
         implementation(libs.coroutines.core)
+        implementation(libs.arrow.core)
+        implementation(libs.arrow.fx)
         implementation(libs.kotest.frameworkEngine)
         implementation(libs.kotest.assertionsCore)
         implementation(libs.kotest.property)
@@ -35,6 +35,43 @@ kotlin {
         implementation(libs.kotest.runnerJUnit5)
       }
     }
+
+    val commonMain by getting
+    val mingwX64Main by getting
+    val linuxX64Main by getting
+    val iosArm32Main by getting
+    val iosArm64Main by getting
+    val iosSimulatorArm64Main by getting
+    val iosX64Main by getting
+    val macosArm64Main by getting
+    val macosX64Main by getting
+    val tvosArm64Main by getting
+    val tvosSimulatorArm64Main by getting
+    val tvosX64Main by getting
+    val watchosArm32Main by getting
+    val watchosArm64Main by getting
+    val watchosSimulatorArm64Main by getting
+    val watchosX64Main by getting
+    val watchosX86Main by getting
+    val nativeMain by getting
+
+    nativeMain.dependsOn(commonMain)
+    mingwX64Main.dependsOn(nativeMain)
+    linuxX64Main.dependsOn(nativeMain)
+    iosArm32Main.dependsOn(nativeMain)
+    iosArm64Main.dependsOn(nativeMain)
+    iosSimulatorArm64Main.dependsOn(nativeMain)
+    iosX64Main.dependsOn(nativeMain)
+    macosArm64Main.dependsOn(nativeMain)
+    macosX64Main.dependsOn(nativeMain)
+    tvosArm64Main.dependsOn(nativeMain)
+    tvosSimulatorArm64Main.dependsOn(nativeMain)
+    tvosX64Main.dependsOn(nativeMain)
+    watchosArm32Main.dependsOn(nativeMain)
+    watchosArm64Main.dependsOn(nativeMain)
+    watchosSimulatorArm64Main.dependsOn(nativeMain)
+    watchosX64Main.dependsOn(nativeMain)
+    watchosX86Main.dependsOn(nativeMain)
   }
 }
 
@@ -64,15 +101,6 @@ tasks.withType<DokkaTask>().configureEach {
         remoteUrl.set(project.uri("https://github.com/nomisRev/Saga/tree/master/src/commonMain/kotlin").toURL())
         remoteLineSuffix.set("#L")
       }
-    }
-  }
-}
-
-nexusPublishing {
-  repositories {
-    named("sonatype") {
-      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
     }
   }
 }

@@ -1,14 +1,8 @@
 package io.github.nomisrev
 
-import arrow.continuations.generic.AtomicRef
-import arrow.continuations.generic.updateAndGet
-import arrow.core.nonFatalOrThrow
-import arrow.fx.coroutines.parTraverse
-import arrow.fx.coroutines.parZip
-import kotlin.coroutines.CoroutineContext
+import io.github.nomisrev.internal.AtomicRef
+import io.github.nomisrev.internal.updateAndGet
 import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
@@ -97,120 +91,6 @@ public class Saga<A>(
       }
     }
   }
-
-  /**
-   * Runs multiple [Saga]s in parallel and combines the result with the [transform] function. When
-   * one of the two [Saga] fails then it will cancel the other, if the other [Saga] already finished
-   * then its compensating action will be run.
-   *
-   * If the resulting Saga is cancelled, then all composed [Saga]s will also cancel. All actions
-   * that already ran will get compensated first.
-   */
-  public fun <B, C> parZip(
-    ctx: CoroutineContext,
-    other: Saga<B>,
-    transform: suspend CoroutineScope.(a: A, b: B) -> C
-  ): Saga<C> = saga { parZip(ctx, { bind() }, { other.bind() }, transform) }
-
-  public fun <B, C> parZip(
-    other: Saga<B>,
-    transform: suspend CoroutineScope.(a: A, b: B) -> C
-  ): Saga<C> = parZip(Dispatchers.Default, other, transform)
-
-  public fun <B, C, D> parZip(
-    ctx: CoroutineContext,
-    b: Saga<B>,
-    c: Saga<C>,
-    f: suspend CoroutineScope.(A, B, C) -> D
-  ): Saga<D> = saga { parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, f) }
-
-  public fun <B, C, D, E> parZip(
-    ctx: CoroutineContext,
-    b: Saga<B>,
-    c: Saga<C>,
-    d: Saga<D>,
-    f: suspend CoroutineScope.(A, B, C, D) -> E
-  ): Saga<E> = saga { parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, f) }
-
-  public fun <B, C, D, E, F> parZip(
-    ctx: CoroutineContext,
-    b: Saga<B>,
-    c: Saga<C>,
-    d: Saga<D>,
-    e: Saga<E>,
-    f: suspend CoroutineScope.(A, B, C, D, E) -> F
-  ): Saga<F> = saga {
-    parZip(ctx, { bind() }, { b.bind() }, { c.bind() }, { d.bind() }, { e.bind() }, f)
-  }
-
-  public fun <B, C, D, E, F, G> parZip(
-    ctx: CoroutineContext,
-    b: Saga<B>,
-    c: Saga<C>,
-    d: Saga<D>,
-    e: Saga<E>,
-    ff: Saga<F>,
-    f: suspend CoroutineScope.(A, B, C, D, E, F) -> G
-  ): Saga<G> = saga {
-    parZip(
-      ctx,
-      { bind() },
-      { b.bind() },
-      { c.bind() },
-      { d.bind() },
-      { e.bind() },
-      { ff.bind() },
-      f
-    )
-  }
-
-  public fun <B, C, D, E, F, G, H> parZip(
-    ctx: CoroutineContext,
-    b: Saga<B>,
-    c: Saga<C>,
-    d: Saga<D>,
-    e: Saga<E>,
-    ff: Saga<F>,
-    g: Saga<G>,
-    f: suspend CoroutineScope.(A, B, C, D, E, F, G) -> H
-  ): Saga<H> = saga {
-    parZip(
-      ctx,
-      { bind() },
-      { b.bind() },
-      { c.bind() },
-      { d.bind() },
-      { e.bind() },
-      { ff.bind() },
-      { g.bind() },
-      f
-    )
-  }
-
-  public fun <B, C, D, E, F, G, H, I> parZip(
-    ctx: CoroutineContext,
-    b: Saga<B>,
-    c: Saga<C>,
-    d: Saga<D>,
-    e: Saga<E>,
-    ff: Saga<F>,
-    g: Saga<G>,
-    h: Saga<H>,
-    f: suspend CoroutineScope.(A, B, C, D, E, F, G, H) -> I
-  ): Saga<I> = saga {
-    parZip(
-      ctx,
-      { bind() },
-      { b.bind() },
-      { c.bind() },
-      { d.bind() },
-      { e.bind() },
-      { ff.bind() },
-      { g.bind() },
-      { h.bind() },
-      f
-    )
-  }
 }
 
 /** Receiver DSL of the `saga { }` builder. */
@@ -245,9 +125,12 @@ public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga(block) {}
  * }.transact()
  * ```
  */
-public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<List<B>> =
+public fun <A, B> Iterable<A>.mapSaga(transform: (a: A) -> Saga<B>): Saga<List<B>> =
   if (this is Collection && this.isEmpty()) Saga({ emptyList() }) {}
   else saga { map { transform(it).bind() } }
+
+public fun <A, B> Iterable<A>.traverse(transform: (a: A) -> Saga<B>): Saga<List<B>> =
+  mapSaga(transform)
 
 /**
  * Alias for traverseSage { it }. Handy when you need to process `List<Saga<A>>` that might be
@@ -259,40 +142,6 @@ public fun <A, B> Iterable<A>.traverseSaga(transform: (a: A) -> Saga<B>): Saga<L
  */
 public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
   if (this is Collection && isEmpty()) Saga({ emptyList() }) {} else saga { map { it.bind() } }
-
-/**
- * Parallel version of [traverseSaga], it has the same semantics as [Saga.parZip] in terms of
- * parallelism and cancellation.
- *
- * When one of the two [Saga] fails then it will cancel the other, if the other [Saga] has already
- * finished then its compensating action will be run.
- *
- * If the resulting Saga is cancelled, then all composed [Saga]s will also cancel. All actions that
- * already ran will get compensated first.
- */
-public fun <A, B> Iterable<A>.parTraverseSaga(
-  ctx: CoroutineContext,
-  f: (A) -> Saga<B>
-): Saga<List<B>> =
-  if (this is Collection && isEmpty()) Saga({ emptyList() }) {}
-  else saga { parTraverse(ctx) { f(it).bind() } }
-
-public fun <A, B> Iterable<A>.parTraverseSaga(f: (a: A) -> Saga<B>): Saga<List<B>> =
-  parTraverseSaga(Dispatchers.Default, f)
-
-/**
- * Alias for parTraverseSage { it }. Handy when you need to process `List<Saga<A>>` that might be
- * coming from another layer.
- *
- * i.e. when the database layer passes a `List<Saga<User>>` to the service layer, to abstract over
- * the database layer/DTO models since you might not be able to access those mappers from the whole
- * app.
- */
-public fun <A> Iterable<Saga<A>>.parSequence(
-  ctx: CoroutineContext = Dispatchers.Default
-): Saga<List<A>> =
-  if (this is Collection && this.isEmpty()) Saga({ emptyList() }) {}
-  else saga { parTraverse(ctx) { it.bind() } }
 
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
@@ -321,7 +170,7 @@ internal class SagaBuilder(
           finalizer()
           null
         } catch (e: Throwable) {
-          e.nonFatalOrThrow()
+          e
         }
       }
       .reduceOrNull { acc, throwable -> acc.apply { addSuppressed(throwable) } }
@@ -349,7 +198,7 @@ private suspend fun <A> guaranteeCase(
     } catch (e: CancellationException) {
       runReleaseAndRethrow(e) { finalizer(ExitCase.Cancelled(e)) }
     } catch (t: Throwable) {
-      runReleaseAndRethrow(t.nonFatalOrThrow()) { finalizer(ExitCase.Failure(t.nonFatalOrThrow())) }
+      runReleaseAndRethrow(t) { finalizer(ExitCase.Failure(t)) }
     }
   withContext(NonCancellable) { finalizer(ExitCase.Completed(res)) }
   return res
@@ -359,7 +208,7 @@ private suspend fun runReleaseAndRethrow(original: Throwable, f: suspend () -> U
   try {
     withContext(NonCancellable) { f() }
   } catch (e: Throwable) {
-    original.addSuppressed(e.nonFatalOrThrow())
+    original.addSuppressed(e)
   }
   throw original
 }

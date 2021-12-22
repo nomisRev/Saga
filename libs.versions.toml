@@ -8,6 +8,7 @@ kotlin = "1.6.10"
 kotlinBinaryCompatibilityValidator = "0.8.0"
 githooks = "0.0.2"
 kover = "0.4.4"
+nexusPublish = "1.1.0"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -23,6 +24,7 @@ kotest-runnerJUnit5 = { module = "io.kotest:kotest-runner-junit5", version.ref =
 kotlin-stdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
 kotlin-stdlibJDK8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
 kotlin-stdlibJS = { module = "org.jetbrains.kotlin:kotlin-stdlib-js" }
+gradleNexus-publishPlugin = { module = "io.github.gradle-nexus:publish-plugin", version.ref = "nexusPublish" }
 
 [plugins]
 arrowGradleConfig-formatter = { id = "io.arrow-kt.arrow-gradle-config-formatter", version.ref = "arrowGradleConfig" }
