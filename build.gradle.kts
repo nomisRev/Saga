@@ -56,7 +56,7 @@ kotlin {
         implementation(libs.kotest.property)
       }
     }
-    named("jvmTest") {
+    jvmTest {
       dependencies {
         implementation(libs.kotest.runnerJUnit5)
       }
