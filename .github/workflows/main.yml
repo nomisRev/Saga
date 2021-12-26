@@ -6,8 +6,7 @@ on:
       - main
 
 env:
-  JAVA_OPTS: -Xms512m -Xmx1024m
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+  GRADLE_OPTS: -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs="-Xmx5g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
   SONATYPE_USER: '${{ secrets.SONATYPE_USER }}'
   SONATYPE_PWD: '${{ secrets.SONATYPE_PWD }}'
   OSS_USER: '${{ secrets.OSS_USER }}'
@@ -35,16 +34,17 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
-      - name: Run MacOs test
+      - name: MacOs test
         if: matrix.os == 'macos-11.0'
-        run: ./gradlew jvmTest
+        uses: gradle/gradle-build-action@v2.0.1
+        with:
+          arguments: jvmTest
 
 #      - name: Run Windows mingwX64Test
 #        if: matrix.os == 'windows-latest'
 #        run: ./gradlew mingwX64Test
 
       - name: Upload reports
-        if: failure()
         uses: actions/upload-artifact@v2.3.1
         with:
           name: 'reports-${{ matrix.os }}'
@@ -55,7 +55,7 @@ jobs:
       SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
 
-    runs-on: macos-11.0
+    runs-on: macos-latest
     timeout-minutes: 120
 
     steps:
@@ -69,8 +69,10 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
-      - name: Build
-        run: ./gradlew publishToSonatype --scan --stacktrace
+      - name: Dokka
+        uses: gradle/gradle-build-action@v2.0.1
+        with:
+          arguments: publishToSonatype --scan --full-stacktrace
 
   publish_windows:
     env:
@@ -88,15 +90,17 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: 11
 
-      - name: Build
-        run: ./gradlew publishToSonatype --scan --stacktrace
+      - name: Dokka
+        uses: gradle/gradle-build-action@v2.0.1
+        with:
+          arguments: publishToSonatype --scan --full-stacktrace
 
   docs:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v2
@@ -106,12 +110,13 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: 11
 
       - name: Dokka
-        id: Dokka
-        run: ./gradlew dokkaHtml --scan
+        uses: gradle/gradle-build-action@v2.0.1
+        with:
+          arguments: dokkaHtml --scan --full-stacktrace
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:

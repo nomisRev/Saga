@@ -7,8 +7,7 @@ on:
       - '*.md'
 
 env:
-  JAVA_OPTS: -Xms1g -Xmx3g
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx3g -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+  GRADLE_OPTS: -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs="-Xmx5g -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
 
 jobs:
   build:
@@ -16,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ 'macos-11.0', 'ubuntu-latest', 'windows-latest' ]
+        os: [ 'macos-latest', 'ubuntu-latest', 'windows-latest' ]
 
     steps:
       - name: Checkout
@@ -33,14 +32,10 @@ jobs:
       - name: Build
         uses: gradle/gradle-build-action@v2.0.1
         with:
-          arguments: build
+          arguments: build --scan --full-stacktrace
 
       - name: Upload reports
-        if: failure()
         uses: actions/upload-artifact@v2.3.1
         with:
           name: 'reports-${{ matrix.os }}'
           path: '**/build/reports/**'
-
-      - name: Stop Gradle daemons
-        run: ./gradlew --stop
