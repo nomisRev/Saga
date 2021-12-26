@@ -161,10 +161,10 @@ val Project.pomSmcDeveloperConnection: String?
   get() = getVariable("pom.smc.developerConnection", "POM_SMC_DEVELOPER_CONNECTION")
 
 val Project.repositorySnapshot: String?
-  get() = getVariable("repository.release", "REPOSITORY_RELEASE")
+  get() = getVariable("repository.snapshot", "REPOSITORY_SNAPSHOT")
 
 val Project.repositoryRelease: String?
-  get() = getVariable("repository.snapshot", "REPOSITORY_SNAPSHOT")
+  get() = getVariable("repository.release", "REPOSITORY_RELEASE")
 
 val Project.ossUser: String?
   get() = getVariable("oss.user", "OSS_USER")
