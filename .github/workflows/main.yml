@@ -97,30 +97,3 @@ jobs:
         uses: gradle/gradle-build-action@v2.0.1
         with:
           arguments: publishToSonatype --scan --full-stacktrace
-
-  docs:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v2.5.0
-        with:
-          distribution: 'temurin'
-          java-version: 11
-
-      - name: Dokka
-        uses: gradle/gradle-build-action@v2.0.1
-        with:
-          arguments: dokkaHtml --scan --full-stacktrace
-
-      - uses: stefanzweifel/git-auto-commit-action@v4.12.0
-        with:
-          commit_message: Auto update docs
-          commit_user_name: nomisRev
-          commit_user_email: nomisRev@users.noreply.github.com
-          commit_author: Simon Vergauwen <nomisRev@users.noreply.github.com>
