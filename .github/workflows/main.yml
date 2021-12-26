@@ -118,6 +118,9 @@ jobs:
         with:
           arguments: dokkaHtml --scan --full-stacktrace
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v4.12.0
         with:
           commit_message: Auto update docs
+          commit_user_name: nomisRev
+          commit_user_email: nomisRev@users.noreply.github.com
+          commit_author: Simon Vergauwen <nomisRev@users.noreply.github.com>
