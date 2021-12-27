@@ -12,7 +12,6 @@ env:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ 'macos-latest', 'ubuntu-latest', 'windows-latest' ]

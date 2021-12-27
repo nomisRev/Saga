@@ -32,7 +32,6 @@ jobs:
 
   generate-alpha-tag:
     runs-on: ubuntu-latest
-
     needs:
       - build
 

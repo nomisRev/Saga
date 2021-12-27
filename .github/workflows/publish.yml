@@ -24,7 +24,7 @@ jobs:
         os: [ 'macos-latest', 'ubuntu-latest', 'windows-latest' ]
 
     outputs:
-      arrow-version: ${{ steps.get-arrow-version.outputs.arrow-version }}
+      saga-version: ${{ steps.get-saga-version.outputs.saga-version }}
 
     runs-on: ${{matrix.os}}
     timeout-minutes: 20
@@ -57,6 +57,10 @@ jobs:
           name: 'reports-${{ matrix.os }}'
           path: '**/build/reports/**'
 
+      - id: get-saga-version
+        name: Get Saga version
+        run: echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
+
   publish:
     needs: check
     env:
@@ -72,7 +76,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set version to an environment variable
-        run: echo "LIB_VERSION=${{needs.check.outputs.arrow-version}}" >> $GITHUB_ENV
+        run: echo "LIB_VERSION=${{needs.check.outputs.saga-version}}" >> $GITHUB_ENV
 
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
