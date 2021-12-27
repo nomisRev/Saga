@@ -1,0 +1,21 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:io.github.nomisrev.internal////PointingToDeclaration/saga/io.github.nomisrev.internal/index.html
+$dokka.location:io.github.nomisrev.internal/AtomicRef///PointingToDeclaration/saga/io.github.nomisrev.internal/-atomic-ref/index.html
+$dokka.location:io.github.nomisrev.internal/AtomicRef/AtomicRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/saga/io.github.nomisrev.internal/-atomic-ref/-atomic-ref.html
+$dokka.location:io.github.nomisrev////PointingToDeclaration/saga/io.github.nomisrev/index.html
+$dokka.location:io.github.nomisrev//mapSaga/kotlin.collections.Iterable[TypeParam(bounds=[kotlin.Any?])]#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/saga/io.github.nomisrev/map-saga.html
+$dokka.location:io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/saga/io.github.nomisrev/saga.html
+$dokka.location:io.github.nomisrev//sequence/kotlin.collections.Iterable[io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]#/PointingToDeclaration/saga/io.github.nomisrev/sequence.html
+$dokka.location:io.github.nomisrev//traverse/kotlin.collections.Iterable[TypeParam(bounds=[kotlin.Any?])]#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/saga/io.github.nomisrev/traverse.html
+$dokka.location:io.github.nomisrev/Saga///PointingToDeclaration/saga/io.github.nomisrev/-saga/index.html
+$dokka.location:io.github.nomisrev/Saga/Saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]#kotlin.coroutines.SuspendFunction1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/saga/io.github.nomisrev/-saga/-saga.html
+$dokka.location:io.github.nomisrev/Saga/action/#/PointingToDeclaration/saga/io.github.nomisrev/-saga/action.html
+$dokka.location:io.github.nomisrev/Saga/compensate/#kotlin.coroutines.SuspendFunction1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/saga/io.github.nomisrev/-saga/compensate.html
+$dokka.location:io.github.nomisrev/Saga/compensation/#/PointingToDeclaration/saga/io.github.nomisrev/-saga/compensation.html
+$dokka.location:io.github.nomisrev/Saga/transact/#/PointingToDeclaration/saga/io.github.nomisrev/-saga/transact.html
+$dokka.location:io.github.nomisrev/SagaEffect///PointingToDeclaration/saga/io.github.nomisrev/-saga-effect/index.html
+$dokka.location:io.github.nomisrev/SagaEffect/bind/io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/saga/io.github.nomisrev/-saga-effect/bind.html
+io.github.nomisrev
+io.github.nomisrev.internal
+

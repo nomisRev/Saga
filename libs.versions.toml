@@ -1,6 +1,6 @@
 [versions]
 arrow = "1.0.1"
-arrowGradleConfig = "0.6.0"
+arrowGradleConfig = "0.6.1-rc.1"
 coroutines = "1.6.0"
 dokka = "1.6.0"
 kotest = "5.0.3"
@@ -31,6 +31,7 @@ arrowGradleConfig-formatter = { id = "io.arrow-kt.arrow-gradle-config-formatter"
 arrowGradleConfig-kotlin = { id = "io.arrow-kt.arrow-gradle-config-kotlin", version.ref = "arrowGradleConfig" }
 arrowGradleConfig-nexus = { id = "io.arrow-kt.arrow-gradle-config-nexus", version.ref = "arrowGradleConfig" }
 arrowGradleConfig-publish = { id = "io.arrow-kt.arrow-gradle-config-publish", version.ref = "arrowGradleConfig" }
+arrowGradleConfig-versioning = { id = "io.arrow-kt.arrow-gradle-config-versioning", version.ref = "arrowGradleConfig" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 kotest-multiplatform = { id = "io.kotest.multiplatform", version.ref = "kotest" }
