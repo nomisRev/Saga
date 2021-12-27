@@ -41,15 +41,10 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
-      - name: MacOs test
-        if: matrix.os == 'macos-latest'
+      - name: jvmTest
         uses: gradle/gradle-build-action@v2.0.1
         with:
           arguments: jvmTest --scan --full-stacktrace
-
-#      - name: Run Windows mingwX64Test
-#        if: matrix.os == 'windows-latest'
-#        run: ./gradlew mingwX64Test
 
       - name: Upload reports
         uses: actions/upload-artifact@v2.3.1
@@ -59,7 +54,12 @@ jobs:
 
       - id: get-saga-version
         name: Get Saga version
-        run: echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
+        run: |
+          ./gradlew
+          ls -al
+          ls -al build
+          ls -al build/semvar
+          echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
 
   publish:
     needs: check
