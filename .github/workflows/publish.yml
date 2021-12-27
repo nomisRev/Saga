@@ -54,16 +54,7 @@ jobs:
 
       - id: get-saga-version
         name: Get Saga version
-        if: matrix.os != 'windows-latest'
-        run: |
-          ./gradlew
-          echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
-
-      - name: Upload SemVar
-        uses: actions/upload-artifact@v2.3.1
-        with:
-          name: 'reports-${{ matrix.os }}'
-          path: '**/build/semver/**'
+        run: echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt)"
 
   publish:
     needs: check
