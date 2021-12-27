@@ -44,7 +44,7 @@ jobs:
       - name: jvmTest
         uses: gradle/gradle-build-action@v2.0.1
         with:
-          arguments: jvmTest --scan --full-stacktrace
+          arguments: --scan --full-stacktrace
 
       - name: Upload reports
         uses: actions/upload-artifact@v2.3.1
@@ -71,7 +71,14 @@ jobs:
           fetch-depth: 0
 
       - name: Set version to an environment variable
-        run: echo "LIB_VERSION=${{needs.check.outputs.saga-version}}" >> $GITHUB_ENV
+        run: |
+          echo "LIB_VERSION=${{needs.check.outputs.saga-version}}" >> $GITHUB_ENV
+          echo github.ref
+          echo ${{ env.LIB_VERSION }}
+          echo ${{ github.ref == 'refs/heads/main' }}
+          echo ${{ contains(env.LIB_VERSION, 'alpha') }}
+          echo ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
+          
 
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
@@ -80,7 +87,7 @@ jobs:
           java-version: 11
 
       - name: Publish alpha version
-        if: github.ref == 'refs/heads/main' && (contains(env.LIB_VERSION, 'alpha') || contains(env.LIB_VERSION, 'beta') || contains(env.LIB_VERSION, 'rc'))
+        if: ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Publish final version
