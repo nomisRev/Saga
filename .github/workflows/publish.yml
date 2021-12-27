@@ -88,9 +88,9 @@ jobs:
 
       - name: Publish final version
         if: |
-          !contains(env.LIB_VERSION, 'alpha') &&
-          !contains(env.LIB_VERSION, 'beta') &&
-          !contains(env.LIB_VERSION, 'rc')
+          !contains(needs.check.outputs.saga-version, 'alpha') &&
+          !contains(needs.check.outputs.saga-version, 'beta') &&
+          !contains(needs.check.outputs.saga-version, 'rc')
         run: ./gradlew publishToSonatype closeSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Stop Gradle daemons
