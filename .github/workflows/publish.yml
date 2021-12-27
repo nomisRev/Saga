@@ -72,18 +72,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set version to an environment variable
-        run: |
-          echo "LIB_VERSION=${{ needs.check.outputs.saga-version }}" >> $GITHUB_ENV
-          echo ${{ env.LIB_VERSION }}
-          echo ${{ github.ref }}
-          echo ${{ needs.check.outputs.saga-version }}
-          echo ${{ env.LIB_VERSION }}
-          echo ${{ github.ref == 'refs/heads/main' }}
-          echo ${{ contains(env.LIB_VERSION, 'alpha') }}
-          echo ${{ contains(needs.check.outputs.saga-version, 'alpha') }}
-          echo ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
-
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
         with:
@@ -91,15 +79,11 @@ jobs:
           java-version: 11
 
       - name: Publish alpha version
-        if: github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha')
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
-
-      - name: Publish alpha version
-        if: github.ref == 'refs/heads/main' && contains(needs.check.outputs.saga-version, 'alpha')
+        if: contains(needs.check.outputs.saga-version, 'alpha') || contains(needs.check.outputs.saga-version, 'beta') || contains(needs.check.outputs.saga-version, 'rc')
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Publish final version
-        if: github.ref == 'refs/heads/main' && !contains(env.LIB_VERSION, 'alpha') && !contains(env.LIB_VERSION, 'beta') && !contains(env.LIB_VERSION, 'rc')
+        if: !contains(env.LIB_VERSION, 'alpha') && !contains(env.LIB_VERSION, 'beta') && !contains(env.LIB_VERSION, 'rc')
         run: ./gradlew publishToSonatype closeSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Stop Gradle daemons
