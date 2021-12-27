@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set version to an environment variable
-        run: echo "LIB_VERSION=${{needs.build.outputs.arrow-version}}" >> $GITHUB_ENV
+        run: echo "LIB_VERSION=${{needs.check.outputs.arrow-version}}" >> $GITHUB_ENV
 
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
