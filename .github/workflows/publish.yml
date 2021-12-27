@@ -80,9 +80,9 @@ jobs:
           echo ${{ needs.check.outputs.saga-version }}
           echo ${{ env.LIB_VERSION }}
           echo ${{ github.ref == 'refs/heads/main' }}
-          echo ${{ contains(env.LIB_VERSION, alpha) }}
-          echo ${{ contains(needs.check.outputs.saga-version, alpha) }}
-          echo ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, alpha) }}
+          echo ${{ contains(env.LIB_VERSION, 'alpha') }}
+          echo ${{ contains(needs.check.outputs.saga-version, 'alpha') }}
+          echo ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
 
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
@@ -91,11 +91,11 @@ jobs:
           java-version: 11
 
       - name: Publish alpha version
-        if: ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
+        if: github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha')
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Publish alpha version
-        if: ${{ github.ref == 'refs/heads/main' && contains(needs.check.outputs.saga-version, 'alpha') }}
+        if: github.ref == 'refs/heads/main' && contains(needs.check.outputs.saga-version, 'alpha')
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Publish final version
