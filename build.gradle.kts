@@ -1,3 +1,4 @@
+import io.github.nomisrev.getVariable
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -49,6 +50,15 @@ kotlin {
       dependencies {
         implementation(libs.kotest.runnerJUnit5)
       }
+    }
+  }
+}
+
+nexusPublishing {
+  repositories {
+    named("sonatype") {
+      nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+      snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
     }
   }
 }
