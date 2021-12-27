@@ -72,8 +72,9 @@ jobs:
 
       - name: Set version to an environment variable
         run: |
-          echo "LIB_VERSION=${{needs.check.outputs.saga-version}}" >> $GITHUB_ENV
+          echo "LIB_VERSION=${{ needs.check.outputs.saga-version }}" >> $GITHUB_ENV
           echo github.ref
+          echo needs.check.outputs.saga-version
           echo ${{ env.LIB_VERSION }}
           echo ${{ github.ref == 'refs/heads/main' }}
           echo ${{ contains(env.LIB_VERSION, 'alpha') }}
@@ -88,6 +89,10 @@ jobs:
 
       - name: Publish alpha version
         if: ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
+
+      - name: Publish alpha version
+        if: ${{ github.ref == 'refs/heads/main' && contains(needs.check.outputs.saga-version, 'alpha') }}
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Publish final version
