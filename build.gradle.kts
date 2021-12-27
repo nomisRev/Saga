@@ -1,4 +1,3 @@
-import io.github.nomisrev.getVariable
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION")
