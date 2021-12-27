@@ -58,7 +58,7 @@ jobs:
           ./gradlew
           ls -al
           ls -al build
-          ls -al build/semvar
+          ls -al build/semver
           echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
 
   publish:
