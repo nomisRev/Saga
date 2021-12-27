@@ -25,7 +25,7 @@ jobs:
           java-version: 11
 
       - name: Gradle build
-        run: ./gradlew jvmTest "-Psemver.stage=alpha"
+        run: ./gradlew "-Psemver.stage=alpha"
 
       - name: Stop Gradle daemons
         run: ./gradlew --stop
