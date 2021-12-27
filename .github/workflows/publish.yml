@@ -21,12 +21,19 @@ jobs:
   check:
     strategy:
       matrix:
-        os: [ windows-latest, macos-11.0 ]
+        os: [ 'macos-latest', 'ubuntu-latest', 'windows-latest' ]
+
+    outputs:
+      arrow-version: ${{ steps.get-arrow-version.outputs.arrow-version }}
+
     runs-on: ${{matrix.os}}
     timeout-minutes: 20
+
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.4.0
+        with:
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
@@ -35,7 +42,7 @@ jobs:
           java-version: 11
 
       - name: MacOs test
-        if: matrix.os == 'macos-11.0'
+        if: matrix.os == 'macos-latest'
         uses: gradle/gradle-build-action@v2.0.1
         with:
           arguments: jvmTest --scan --full-stacktrace
@@ -50,7 +57,8 @@ jobs:
           name: 'reports-${{ matrix.os }}'
           path: '**/build/reports/**'
 
-  publish_jvm_js_linux_apple:
+  publish:
+    needs: check
     env:
       SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
@@ -63,37 +71,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set version to an environment variable
+        run: echo "LIB_VERSION=${{needs.build.outputs.arrow-version}}" >> $GITHUB_ENV
+
       - name: Set up Java
         uses: actions/setup-java@v2.5.0
         with:
           distribution: 'zulu'
           java-version: 11
 
-      - name: Dokka
-        uses: gradle/gradle-build-action@v2.0.1
-        with:
-          arguments: publishToSonatype --scan --full-stacktrace
+      - name: Publish alpha version
+        if: ${{ github.ref == 'refs/heads/main' && contains(env.LIB_VERSION, 'alpha') }}
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
-  publish_windows:
-    env:
-      SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
-      SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
+      - name: Publish final version
+        if: ${{ github.ref == 'refs/heads/main' && !contains(env.LIB_VERSION, 'alpha') && !contains(env.LIB_VERSION, 'beta') && !contains(env.LIB_VERSION, 'rc') }}
+        run: ./gradlew publishToSonatype closeSonatypeStagingRepository --full-stacktrace --scan
 
-    runs-on: windows-latest
-    timeout-minutes: 30
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v2.5.0
-        with:
-          distribution: 'temurin'
-          java-version: 11
-
-      - name: Dokka
-        uses: gradle/gradle-build-action@v2.0.1
-        with:
-          arguments: publishToSonatype --scan --full-stacktrace
+      - name: Stop Gradle daemons
+        run: ./gradlew --stop
