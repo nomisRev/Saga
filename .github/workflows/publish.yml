@@ -41,10 +41,10 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
-#      - name: jvmTest
-#        uses: gradle/gradle-build-action@v2.0.1
-#        with:
-#          arguments: --scan --full-stacktrace
+      #      - name: jvmTest
+      #        uses: gradle/gradle-build-action@v2.0.1
+      #        with:
+      #          arguments: --scan --full-stacktrace
 
       - name: Upload reports
         uses: actions/upload-artifact@v2.3.1
@@ -68,7 +68,8 @@ jobs:
     timeout-minutes: 120
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout the repo
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -79,11 +80,17 @@ jobs:
           java-version: 11
 
       - name: Publish alpha version
-        if: contains(needs.check.outputs.saga-version, 'alpha') || contains(needs.check.outputs.saga-version, 'beta') || contains(needs.check.outputs.saga-version, 'rc')
+        if: |
+          contains(needs.check.outputs.saga-version, 'alpha') ||
+          contains(needs.check.outputs.saga-version, 'beta') ||
+          contains(needs.check.outputs.saga-version, 'rc')
         run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Publish final version
-        if: !contains(env.LIB_VERSION, 'alpha') && !contains(env.LIB_VERSION, 'beta') && !contains(env.LIB_VERSION, 'rc')
+        if: |
+          !contains(env.LIB_VERSION, 'alpha') &&
+          !contains(env.LIB_VERSION, 'beta') &&
+          !contains(env.LIB_VERSION, 'rc')
         run: ./gradlew publishToSonatype closeSonatypeStagingRepository --full-stacktrace --scan
 
       - name: Stop Gradle daemons
