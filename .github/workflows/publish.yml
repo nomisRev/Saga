@@ -54,11 +54,19 @@ jobs:
 
       - id: get-saga-version
         name: Get Saga version
+        if: matrix.os != 'windows-latest'
         run: |
           ./gradlew
           ls -al
           ls -al build
           ls -al build/semver
+          echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
+
+      - id: get-saga-version
+        name: Get Saga version
+        if: matrix.os == 'windows-latest'
+        run: |
+          ./gradlew
           echo "::set-output name=saga-version::$(head -n 1 build/semver/version.txt| cut -d. -f1-2)"
 
   publish:
