@@ -41,10 +41,10 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
-      #      - name: jvmTest
-      #        uses: gradle/gradle-build-action@v2.0.1
-      #        with:
-      #          arguments: --scan --full-stacktrace
+     - name: jvmTest
+       uses: gradle/gradle-build-action@v2.0.1
+       with:
+         arguments: jvmTest --scan --full-stacktrace
 
       - name: Upload reports
         uses: actions/upload-artifact@v2.3.1
