@@ -34,14 +34,14 @@ jobs:
           arguments: jvmTest jsTest detektMetadataMain --scan --full-stacktrace
 
       - name: Upload reports
-        continue-on-error: true
+        if: always()
         uses: actions/upload-artifact@v2.3.1
         with:
           name: 'reports-${{ matrix.os }}'
           path: '**/build/reports/**'
 
       - name: Upload Code Scanning code analysis report
-        continue-on-error: true
+        if: always()
         uses: github/codeql-action/upload-sarif@v1
         with:
           sarif_file: 'build/reports/detekt/main.sarif'
