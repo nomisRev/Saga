@@ -56,7 +56,7 @@ class SagaSpec :
     // kotlin.native.concurrent.InvalidMutabilityException: mutation attempt of frozen
     // kotlin.Array@73a59a08
     // https://github.com/Kotlin/kotlinx.coroutines/issues/462
-    "Saga runs compensation in order & rethrows exception".config(enabled = false) {
+    "Saga runs compensation in order & rethrows exception" {
       checkAll(Arb.int(), Arb.int()) { a, b ->
         val compensations = Channel<Int>(2)
         val saga = saga {

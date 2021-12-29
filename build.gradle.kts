@@ -1,3 +1,4 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -10,6 +11,7 @@ plugins {
   alias(libs.plugins.arrowGradleConfig.nexus)
   alias(libs.plugins.arrowGradleConfig.versioning)
   alias(libs.plugins.dokka)
+  alias(libs.plugins.detekt)
   alias(libs.plugins.kover)
 }
 
@@ -50,5 +52,19 @@ kotlin {
         implementation(libs.kotest.runnerJUnit5)
       }
     }
+  }
+}
+
+detekt {
+  buildUponDefaultConfig = true
+  allRules = true
+}
+
+tasks.withType<Detekt>().configureEach {
+  reports {
+    html.required by true
+    sarif.required by true
+    txt.required by false
+    xml.required by false
   }
 }

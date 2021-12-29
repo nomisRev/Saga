@@ -46,7 +46,7 @@ jobs:
           java-version: 11
 
       - name: Gradle build
-        run: ./gradlew jvmTest "-Psemver.scope=${{ github.event.inputs.scope }}" "-Psemver.stage=${{ github.event.inputs.stage }}"
+        run: ./gradlew jvmTest jsTest detektMetadataMain "-Psemver.scope=${{ github.event.inputs.scope }}" "-Psemver.stage=${{ github.event.inputs.stage }}"
 
       - name: Stop Gradle daemons
         run: ./gradlew --stop

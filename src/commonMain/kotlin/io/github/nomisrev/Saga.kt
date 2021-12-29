@@ -169,7 +169,7 @@ internal class SagaBuilder(
         try {
           finalizer()
           null
-        } catch (e: Throwable) {
+        } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
           e
         }
       }
@@ -197,7 +197,7 @@ private suspend fun <A> guaranteeCase(
       fa()
     } catch (e: CancellationException) {
       runReleaseAndRethrow(e) { finalizer(ExitCase.Cancelled(e)) }
-    } catch (t: Throwable) {
+    } catch (t: @Suppress("TooGenericExceptionCaught") Throwable) {
       runReleaseAndRethrow(t) { finalizer(ExitCase.Failure(t)) }
     }
   withContext(NonCancellable) { finalizer(ExitCase.Completed(res)) }
@@ -207,7 +207,7 @@ private suspend fun <A> guaranteeCase(
 private suspend fun runReleaseAndRethrow(original: Throwable, f: suspend () -> Unit): Nothing {
   try {
     withContext(NonCancellable) { f() }
-  } catch (e: Throwable) {
+  } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
     original.addSuppressed(e)
   }
   throw original
