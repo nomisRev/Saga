@@ -1,6 +1,8 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:io.github.nomisrev.internal////PointingToDeclaration/-saga/io.github.nomisrev.internal.html
+$dokka.location:io.github.nomisrev.internal////PointingToDeclaration/-saga/io.github.nomisrev.internal/index.html
+$dokka.location:io.github.nomisrev.internal/AtomicRef///PointingToDeclaration/-saga/io.github.nomisrev.internal/-atomic-ref/index.html
+$dokka.location:io.github.nomisrev.internal/AtomicRef/AtomicRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/-saga/io.github.nomisrev.internal/-atomic-ref/-atomic-ref.html
 $dokka.location:io.github.nomisrev////PointingToDeclaration/-saga/io.github.nomisrev/index.html
 $dokka.location:io.github.nomisrev//mapSaga/kotlin.collections.Iterable[TypeParam(bounds=[kotlin.Any?])]#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),io.github.nomisrev.Saga[TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/-saga/io.github.nomisrev/map-saga.html
 $dokka.location:io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/-saga/io.github.nomisrev/saga.html
