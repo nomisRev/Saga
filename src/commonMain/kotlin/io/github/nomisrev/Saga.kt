@@ -61,7 +61,8 @@ public class Saga<A>(
    *
    * ```kotlin
    * saga {
-   *   saga { println("A") }.compensate { println("A - 1") }
+   *   saga { println("A") }
+   *     .compensate { println("A - 1") }
    *     .compensate { println("A - 2") }
    *     .bind
    *   throw RuntimeException("Boom!")
