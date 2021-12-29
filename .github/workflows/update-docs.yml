@@ -29,5 +29,7 @@ jobs:
 
       - name: Push docs
         run: |
+          git config --global user.email "nomisRev@users.noreply.github.com"
+          git config --global user.name "Simon Vergauwen"
           git add docs/.
           git commit -m "Automaticaly update docs"
