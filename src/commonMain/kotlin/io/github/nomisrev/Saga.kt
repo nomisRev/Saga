@@ -64,7 +64,7 @@ public class Saga<A>(
    *   saga { println("A") }
    *     .compensate { println("A - 1") }
    *     .compensate { println("A - 2") }
-   *     .bind
+   *     .bind()
    *   throw RuntimeException("Boom!")
    * }.transact()
    * // A - 2
