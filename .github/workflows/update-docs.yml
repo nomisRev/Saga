@@ -1,0 +1,33 @@
+name: update-docs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.TOKEN_GITHUB_ACTION }}
+
+      - name: Set up Java
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
+      - name: Dokka
+        uses: gradle/gradle-build-action@v2.0.1
+        with:
+          arguments: dokkaHtml --scan --full-stacktrace
+
+      - name: Push docs
+        run: |
+          git add docs/.
+          git commit -m "Automaticaly update docs"
