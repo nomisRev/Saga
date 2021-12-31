@@ -42,7 +42,7 @@ jobs:
           java-version: 11
 
       - name: jvmTest
-        uses: gradle/gradle-build-action@v2.0.1
+        uses: gradle/gradle-build-action@v2.1.0
         with:
           arguments: jvmTest jsTest detektMetadataMain --scan --full-stacktrace
 
