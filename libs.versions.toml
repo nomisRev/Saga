@@ -6,7 +6,7 @@ dokka = "1.6.10"
 kotest = "5.1.0"
 kotlin = "1.6.10"
 kotlinBinaryCompatibilityValidator = "0.8.0"
-kover = "0.4.4"
+kover = "0.5.0"
 nexusPublish = "1.1.0"
 detekt = "1.19.0"
 
