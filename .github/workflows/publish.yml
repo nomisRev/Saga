@@ -47,7 +47,7 @@ jobs:
           arguments: jvmTest jsTest detektMetadataMain --scan --full-stacktrace
 
       - name: Upload reports
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: 'reports-${{ matrix.os }}'
           path: '**/build/reports/**'
