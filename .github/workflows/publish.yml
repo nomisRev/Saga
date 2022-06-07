@@ -27,7 +27,6 @@ jobs:
       saga-version: ${{ steps.get-saga-version.outputs.saga-version }}
 
     runs-on: ${{matrix.os}}
-    timeout-minutes: 20
 
     steps:
       - name: Checkout the repo
@@ -65,7 +64,6 @@ jobs:
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
 
     runs-on: macos-latest
-    timeout-minutes: 120
 
     steps:
       - name: Checkout the repo
