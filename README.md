@@ -16,11 +16,10 @@ dependencies {
 }
 ```
 
-The saga design pattern is a way to manage data consistency across microservices in distributed transaction scenarios.
+The saga design pattern is a common pattern to manage data consistency across microservices in distributed transaction scenarios.
+Or when you need to compose multiple `action` with a `compensation` that needs to run in a transaction like manner.
 
-A [Saga] is useful when you need to manage data in a consistent manner across services in distributed transaction scenarios.
-Or when you need to compose multiple [action]s with a [compensation] that needs to run in a transaction like style.
-For example, let's say that we have following domain types `Order`, `Payment`.
+For example, let's say that we have the following domain types `Order`, `Payment`.
 
 ```kotlin
 data class Order(val id: UUID, val amount: Long)
@@ -29,10 +28,10 @@ data class Payment(val id: UUID, val orderId: UUID)
 
 The creation of an `Order` can only remain when a payment has been made.
 
-In SQL you might run this inside a transaction, which can automatically rollback the creation of the `Order` when the creation of the Payment fails.
-When you need to do this across distributed services, or a multiple atomic references, etc  you need to manually facilitate the rolling back of the performed actions, or compensating actions.
+In SQL you might run this inside a transaction, which can automatically roll back the creation of the `Order` when the creation of the Payment fails.
+When you need to do this across distributed services, or a multiple atomic references, etc. You need to manually facilitate the rolling back of the performed actions, or compensating actions.
 
-The [Saga] type, and [saga] DSL remove all the boilerplate of manually having to facilitate this with a convenient suspending DSL.
+The `Saga` type and `saga` DSL remove all the boilerplate of manually having to facilitate this with a convenient suspending DSL.
 
 ```kotlin
 data class Order(val id: UUID, val amount: Long)

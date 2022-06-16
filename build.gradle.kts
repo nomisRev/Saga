@@ -1,5 +1,12 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlinx.knit.KnitPluginExtension
+
+buildscript {
+  dependencies {
+    classpath(libs.kotlinx.knit)
+  }
+}
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
@@ -13,6 +20,12 @@ plugins {
   alias(libs.plugins.dokka)
   alias(libs.plugins.detekt)
   alias(libs.plugins.kover)
+}
+
+apply(plugin = "kotlinx-knit")
+
+configure<KnitPluginExtension> {
+  siteRoot = "https://nomisrev.github.io/Saga/"
 }
 
 infix fun <T> Property<T>.by(value: T) {
