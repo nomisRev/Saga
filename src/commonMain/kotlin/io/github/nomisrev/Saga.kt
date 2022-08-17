@@ -162,13 +162,13 @@ internal class SagaBuilder(
   
   @PublishedApi
   internal suspend fun totalCompensation() {
-    stack.get().fold(null) { acc, finalizer ->
+    stack.get().fold<suspend () -> Unit, Throwable?>(null) { acc, finalizer ->
       try {
         finalizer()
+        acc
       } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
-        acc?.addSuppressed(e)
+        acc?.apply { addSuppressed(e) } ?: e
       }
-      acc
     }?.let { throw it }
   }
 }
