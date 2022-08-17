@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.api.JavaVersion.VERSION_1_8
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -21,12 +22,15 @@ infix fun <T> Property<T>.by(value: T) {
 
 allprojects {
   extra.set("dokka.outputDirectory", rootDir.resolve("docs"))
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-  kotlinOptions.jvmTarget = "1.8"
-  sourceCompatibility = "1.8"
-  targetCompatibility = "1.8"
+  
+  java {
+    sourceCompatibility = VERSION_1_8
+    targetCompatibility = VERSION_1_8
+  }
+  
+  tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "1.8"
+  }
 }
 
 kotlin {
