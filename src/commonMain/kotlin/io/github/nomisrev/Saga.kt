@@ -147,9 +147,9 @@ public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
 internal class SagaBuilder(
-  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList())
+  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList()),
 ) : SagaEffect {
-
+  
   override suspend fun <A> Saga<A>.bind(): A =
     guaranteeCase({ action() }) { res ->
       // This action failed, so we have no compensate to push on the stack
@@ -159,7 +159,7 @@ internal class SagaBuilder(
         else -> stack.updateAndGet { listOf(suspend { compensation(res) }) + it }
       }
     }
-
+  
   @PublishedApi
   internal suspend fun totalCompensation() {
     stack
