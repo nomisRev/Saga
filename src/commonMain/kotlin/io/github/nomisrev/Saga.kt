@@ -149,7 +149,7 @@ public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
 internal class SagaBuilder(
   private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList()),
 ) : SagaEffect {
-  
+
   override suspend fun <A> Saga<A>.bind(): A =
     guaranteeCase({ action() }) { res ->
       // This action failed, so we have no compensate to push on the stack
@@ -159,20 +159,19 @@ internal class SagaBuilder(
         else -> stack.updateAndGet { listOf(suspend { compensation(res) }) + it }
       }
     }
-  
+
   @PublishedApi
   internal suspend fun totalCompensation() {
     stack
       .get()
-      .fold(null) { acc, finalizer ->
+      .fold<suspend () -> Unit, Throwable?>(null) { acc, finalizer ->
         try {
           finalizer()
+          acc
         } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
-          acc?.addSuppressed(e)
+          acc?.apply { addSuppressed(e) } ?: e
         }
-        acc
-      }
-      ?.let { throw it }
+      }?.let { throw it }
   }
 }
 
