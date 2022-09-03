@@ -147,7 +147,7 @@ public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
 internal class SagaBuilder(
-  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList()),
+  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList())
 ) : SagaEffect {
 
   override suspend fun <A> Saga<A>.bind(): A =
@@ -164,13 +164,13 @@ internal class SagaBuilder(
   internal suspend fun totalCompensation() {
     stack
       .get()
-      .fold<suspend () -> Unit, Throwable?>(null) { acc, finalizer ->
+      .fold(null) { acc, finalizer ->
         try {
           finalizer()
-          acc
         } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
-          acc?.apply { addSuppressed(e) } ?: e
+          acc?.addSuppressed(e)
         }
+        acc
       }
       ?.let { throw it }
   }
