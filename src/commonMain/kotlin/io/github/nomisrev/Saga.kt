@@ -42,8 +42,8 @@ import kotlinx.coroutines.withContext
  *
  * suspend fun main() {
  *   saga {
- *     val order = saga { createOrder() }.compensate(::deleteOrder).bind()
- *     val payment = saga { createPayment(order) }.compensate(::deletePayment).bind()
+ *     val order = saga({ createOrder() }) { deleteOrder(it) }
+ *     val payment = saga { createPayment(order) }, ::deletePayment)
  *     payment.awaitSuccess()
  *   }.transact()
  * }
@@ -51,28 +51,37 @@ import kotlinx.coroutines.withContext
  */
 public typealias Saga<A> = suspend SagaEffect.() -> A
 
-/**
- * Add a compensating action to a [Saga]. A single [Saga] can have many compensating actions, they
- * will be composed in a FILO order. This makes sure they're executed in reverse order as the
- * actions.
- *
- * ```kotlin
- * saga {
- *   saga { println("A") }
- *     .compensate { println("A - 1") }
- *     .compensate { println("A - 2") }
- *     .bind()
- *   throw RuntimeException("Boom!")
- * }.transact()
- * // A - 2
- * // A - 1
- * // RuntimeException("Boom!")
- * ```
- */
-public infix fun <A> Saga<A>.compensate(compensate: suspend (A) -> Unit): Saga<A> = saga {
-  val a = bind()
-  saga({ a }, compensate)
+/** Receiver DSL of the `saga { }` builder. */
+@SagaDSLMarker
+public interface SagaEffect {
+
+  @SagaDSLMarker
+  public suspend fun <A> saga(
+    action: suspend SagaActionStep.() -> A,
+    compensation: suspend (A) -> Unit,
+  ): A
+
+  /** Runs a [Saga] and registers it's `compensation` task after the `action` finishes running */
+  public suspend fun <A> Saga<A>.bind(): A = invoke(this@SagaEffect)
+  public suspend operator fun <A> Saga<A>.invoke(): A = invoke(this@SagaEffect)
 }
+
+/**
+ * The Saga builder which exposes the [SagaEffect.bind]. The `saga` builder uses the suspension
+ * system to run actions, and automatically register their compensating actions.
+ *
+ * When the resulting [Saga] fails it will run all the required compensating actions, also when the
+ * [Saga] gets cancelled it will respect its compensating actions before returning.
+ *
+ * By doing so we can guarantee that any transactional like operations made by the [Saga] will
+ * guarantee that it results in the correct state.
+ */
+public inline fun <A> saga(noinline block: suspend SagaEffect.() -> A): Saga<A> = block
+
+public fun <A> saga(
+  action: suspend SagaActionStep.() -> A,
+  compensation: suspend (A) -> Unit,
+): Saga<A> = saga { saga(action, compensation) }
 
 /**
  * Transact runs the [Saga] turning it into a [suspend] effect that results in [A]. If the saga
@@ -97,31 +106,6 @@ public suspend fun <A> Saga<A>.transact(): A {
  */
 @SagaDSLMarker public object SagaActionStep
 
-/** Receiver DSL of the `saga { }` builder. */
-@SagaDSLMarker
-public interface SagaEffect {
-
-  public suspend fun <A> saga(
-    action: suspend SagaActionStep.() -> A,
-    compensation: suspend (A) -> Unit
-  ): A
-
-  /** Runs a [Saga] and registers it's `compensation` task after the `action` finishes running */
-  public suspend fun <A> Saga<A>.bind(): A = invoke(this@SagaEffect)
-}
-
-/**
- * The Saga builder which exposes the [SagaEffect.bind]. The `saga` builder uses the suspension
- * system to run actions, and automatically register their compensating actions.
- *
- * When the resulting [Saga] fails it will run all the required compensating actions, also when the
- * [Saga] gets cancelled it will respect its compensating actions before returning.
- *
- * By doing so we can guarantee that any transactional like operations made by the [Saga] will
- * guarantee that it results in the correct state.
- */
-public inline fun <A> saga(noinline block: suspend SagaEffect.() -> A): Saga<A> = block
-
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
 internal class SagaBuilder(
@@ -131,7 +115,7 @@ internal class SagaBuilder(
   @SagaDSLMarker
   override suspend fun <A> saga(
     action: suspend SagaActionStep.() -> A,
-    compensation: suspend (A) -> Unit
+    compensation: suspend (A) -> Unit,
   ): A =
     guaranteeCase({ action(SagaActionStep) }) { res ->
       // This action failed, so we have no compensate to push on the stack
