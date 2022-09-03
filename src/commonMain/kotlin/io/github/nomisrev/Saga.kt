@@ -51,18 +51,24 @@ import kotlinx.coroutines.withContext
  */
 public typealias Saga<A> = suspend SagaEffect.() -> A
 
-/** Receiver DSL of the `saga { }` builder. */
+/** DSL that enables the [Saga] pattern in a `suspend` DSL. */
 @SagaDSLMarker
 public interface SagaEffect {
 
+  /**
+   * Run an [action] to produce a value of type [A] and _install_ a [compensation] to undo the
+   * action.
+   */
   @SagaDSLMarker
   public suspend fun <A> saga(
     action: suspend SagaActionStep.() -> A,
     compensation: suspend (A) -> Unit,
   ): A
 
-  /** Runs a [Saga] and registers it's `compensation` task after the `action` finishes running */
+  /** Executes a [Saga] and returns its value [A] */
   public suspend fun <A> Saga<A>.bind(): A = invoke(this@SagaEffect)
+
+  /** Invoke a [Saga] and returns its value [A] */
   public suspend operator fun <A> Saga<A>.invoke(): A = invoke(this@SagaEffect)
 }
 
@@ -78,9 +84,10 @@ public interface SagaEffect {
  */
 public inline fun <A> saga(noinline block: suspend SagaEffect.() -> A): Saga<A> = block
 
+/** Create a lazy [Saga] that will only run when the [Saga] is invoked. */
 public fun <A> saga(
   action: suspend SagaActionStep.() -> A,
-  compensation: suspend (A) -> Unit,
+  compensation: suspend (A) -> Unit
 ): Saga<A> = saga { saga(action, compensation) }
 
 /**
@@ -109,13 +116,13 @@ public suspend fun <A> Saga<A>.transact(): A {
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
 internal class SagaBuilder(
-  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList()),
+  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList())
 ) : SagaEffect {
 
   @SagaDSLMarker
   override suspend fun <A> saga(
     action: suspend SagaActionStep.() -> A,
-    compensation: suspend (A) -> Unit,
+    compensation: suspend (A) -> Unit
   ): A =
     guaranteeCase({ action(SagaActionStep) }) { res ->
       // This action failed, so we have no compensate to push on the stack
@@ -137,13 +144,14 @@ internal class SagaBuilder(
         } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
           acc?.apply { addSuppressed(e) } ?: e
         }
-      }?.let { throw it }
+      }
+      ?.let { throw it }
   }
 }
 
 private suspend fun <A> guaranteeCase(
   fa: suspend () -> A,
-  finalizer: suspend (value: A?) -> Unit,
+  finalizer: suspend (value: A?) -> Unit
 ): A {
   val res =
     try {
