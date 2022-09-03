@@ -85,10 +85,10 @@ public class Saga<A>(
    */
   public suspend fun transact(): A {
     val builder = SagaBuilder()
-    return guaranteeCase({ action(builder) }) { exitCase ->
-      when (exitCase) {
-        is ExitCase.Completed -> Unit
-        else -> builder.totalCompensation()
+    return guaranteeCase({ action(builder) }) { res ->
+      when (res) {
+        null -> builder.totalCompensation()
+        else -> Unit
       }
     }
   }
@@ -147,18 +147,16 @@ public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
 internal class SagaBuilder(
-  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList())
+  private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList()),
 ) : SagaEffect {
 
   override suspend fun <A> Saga<A>.bind(): A =
-    guaranteeCase({ action() }) { exitCase ->
-      when (exitCase) {
-        is ExitCase.Completed<A> ->
-          stack.updateAndGet { listOf(suspend { compensation(exitCase.value) }) + it }
-        // This action failed, so we have no compensate to push on the stack
-        // the compensation stack will run in the `transact` stage, this is just the builder
-        is ExitCase.Cancelled -> Unit
-        is ExitCase.Failure -> Unit
+    guaranteeCase({ action() }) { res ->
+      // This action failed, so we have no compensate to push on the stack
+      // the compensation stack will run in the `transact` stage, this is just the builder
+      when (res) {
+        null -> Unit
+        else -> stack.updateAndGet { listOf(suspend { compensation(res) }) + it }
       }
     }
 
@@ -166,42 +164,31 @@ internal class SagaBuilder(
   internal suspend fun totalCompensation() {
     stack
       .get()
-      .mapNotNull { finalizer ->
+      .fold<suspend () -> Unit, Throwable?>(null) { acc, finalizer ->
         try {
           finalizer()
-          null
+          acc
         } catch (e: @Suppress("TooGenericExceptionCaught") Throwable) {
-          e
+          acc?.apply { addSuppressed(e) } ?: e
         }
       }
-      .reduceOrNull { acc, throwable -> acc.apply { addSuppressed(throwable) } }
       ?.let { throw it }
   }
 }
 
-internal sealed class ExitCase<out A> {
-  data class Completed<A>(val value: A) : ExitCase<A>() {
-    override fun toString(): String = "ExitCase.Completed"
-  }
-
-  data class Cancelled(val exception: CancellationException) : ExitCase<Nothing>()
-  data class Failure(val failure: Throwable) : ExitCase<Nothing>()
-}
-
-@Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE")
 private suspend fun <A> guaranteeCase(
   fa: suspend () -> A,
-  finalizer: suspend (ExitCase<A>) -> Unit
+  finalizer: suspend (value: A?) -> Unit,
 ): A {
   val res =
     try {
       fa()
     } catch (e: CancellationException) {
-      runReleaseAndRethrow(e) { finalizer(ExitCase.Cancelled(e)) }
+      runReleaseAndRethrow(e) { finalizer(null) }
     } catch (t: @Suppress("TooGenericExceptionCaught") Throwable) {
-      runReleaseAndRethrow(t) { finalizer(ExitCase.Failure(t)) }
+      runReleaseAndRethrow(t) { finalizer(null) }
     }
-  withContext(NonCancellable) { finalizer(ExitCase.Completed(res)) }
+  withContext(NonCancellable) { finalizer(res) }
   return res
 }
 
