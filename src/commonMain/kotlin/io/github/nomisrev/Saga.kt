@@ -49,56 +49,65 @@ import kotlinx.coroutines.withContext
  * }
  * ```
  */
-public class Saga<A>(
-  public val action: suspend SagaEffect.() -> A,
-  public val compensation: suspend (A) -> Unit
-) {
+public typealias Saga<A> = suspend SagaEffect.() -> A
 
-  /**
-   * Add a compensating action to a [Saga]. A single [Saga] can have many compensating actions, they
-   * will be composed in a FILO order. This makes sure they're executed in reverse order as the
-   * actions.
-   *
-   * ```kotlin
-   * saga {
-   *   saga { println("A") }
-   *     .compensate { println("A - 1") }
-   *     .compensate { println("A - 2") }
-   *     .bind()
-   *   throw RuntimeException("Boom!")
-   * }.transact()
-   * // A - 2
-   * // A - 1
-   * // RuntimeException("Boom!")
-   * ```
-   */
-  public infix fun compensate(compensate: suspend (A) -> Unit): Saga<A> =
-    Saga(action) { a ->
-      compensation(a)
-      compensate(a)
-    }
+/**
+ * Add a compensating action to a [Saga]. A single [Saga] can have many compensating actions, they
+ * will be composed in a FILO order. This makes sure they're executed in reverse order as the
+ * actions.
+ *
+ * ```kotlin
+ * saga {
+ *   saga { println("A") }
+ *     .compensate { println("A - 1") }
+ *     .compensate { println("A - 2") }
+ *     .bind()
+ *   throw RuntimeException("Boom!")
+ * }.transact()
+ * // A - 2
+ * // A - 1
+ * // RuntimeException("Boom!")
+ * ```
+ */
+public infix fun <A> Saga<A>.compensate(compensate: suspend (A) -> Unit): Saga<A> = saga {
+  val a = bind()
+  saga({ a }, compensate)
+}
 
-  /**
-   * Transact runs the [Saga] turning it into a [suspend] effect that results in [A]. If the saga
-   * fails then all compensating actions are guaranteed to run. When a compensating action failed it
-   * will be ignored, and the other compensating actions will continue to be run.
-   */
-  public suspend fun transact(): A {
-    val builder = SagaBuilder()
-    return guaranteeCase({ action(builder) }) { res ->
-      when (res) {
-        null -> builder.totalCompensation()
-        else -> Unit
-      }
+/**
+ * Transact runs the [Saga] turning it into a [suspend] effect that results in [A]. If the saga
+ * fails then all compensating actions are guaranteed to run. When a compensating action failed it
+ * will be ignored, and the other compensating actions will continue to be run.
+ */
+public suspend fun <A> Saga<A>.transact(): A {
+  val builder = SagaBuilder()
+  return guaranteeCase({ invoke(builder) }) { res ->
+    when (res) {
+      null -> builder.totalCompensation()
+      else -> Unit
     }
   }
 }
 
+/** DSL Marker for the SagaEffect DSL */
+@DslMarker public annotation class SagaDSLMarker
+
+/**
+ * Marker object to protect [SagaEffect.saga] from calling [SagaEffect.bind] in its `action` step.
+ */
+@SagaDSLMarker public object SagaActionStep
+
 /** Receiver DSL of the `saga { }` builder. */
+@SagaDSLMarker
 public interface SagaEffect {
 
+  public suspend fun <A> saga(
+    action: suspend SagaActionStep.() -> A,
+    compensation: suspend (A) -> Unit
+  ): A
+
   /** Runs a [Saga] and registers it's `compensation` task after the `action` finishes running */
-  public suspend fun <A> Saga<A>.bind(): A
+  public suspend fun <A> Saga<A>.bind(): A = invoke(this@SagaEffect)
 }
 
 /**
@@ -111,38 +120,7 @@ public interface SagaEffect {
  * By doing so we can guarantee that any transactional like operations made by the [Saga] will
  * guarantee that it results in the correct state.
  */
-public fun <A> saga(block: suspend SagaEffect.() -> A): Saga<A> = Saga(block) {}
-
-/**
- * Traverses the [Iterable] and composes all [Saga] returned by the applies [transform] function.
- *
- * ```kotlin
- * data class Order(val id: UUID, val amount: Long)
- * suspend fun updateOrder(inc: Long): Order = Order(UUID.randomUUID(), 100L + inc)
- * suspend fun reverseOrder(uuid: UUID, inc: Long): Unit = println("Decrementing order with $uuid with $inc")
- *
- * listOf(1, 2, 3).traverseSage { amount ->
- *   saga { updateOrder(amount) }.compensate { order -> reverseOrder(order.uuid, amount) }
- * }.transact()
- * ```
- */
-public fun <A, B> Iterable<A>.mapSaga(transform: (a: A) -> Saga<B>): Saga<List<B>> =
-  if (this is Collection && this.isEmpty()) Saga({ emptyList() }) {}
-  else saga { map { transform(it).bind() } }
-
-public fun <A, B> Iterable<A>.traverse(transform: (a: A) -> Saga<B>): Saga<List<B>> =
-  mapSaga(transform)
-
-/**
- * Alias for traverseSage { it }. Handy when you need to process `List<Saga<A>>` that might be
- * coming from another layer.
- *
- * i.e. when the database layer passes a `List<Saga<User>>` to the service layer, to abstract over
- * the database layer/DTO models since you might not be able to access those mappers from the whole
- * app.
- */
-public fun <A> Iterable<Saga<A>>.sequence(): Saga<List<A>> =
-  if (this is Collection && isEmpty()) Saga({ emptyList() }) {} else saga { map { it.bind() } }
+public inline fun <A> saga(noinline block: suspend SagaEffect.() -> A): Saga<A> = block
 
 // Internal implementation of the `saga { }` builder.
 @PublishedApi
@@ -150,8 +128,12 @@ internal class SagaBuilder(
   private val stack: AtomicRef<List<suspend () -> Unit>> = AtomicRef(emptyList()),
 ) : SagaEffect {
 
-  override suspend fun <A> Saga<A>.bind(): A =
-    guaranteeCase({ action() }) { res ->
+  @SagaDSLMarker
+  override suspend fun <A> saga(
+    action: suspend SagaActionStep.() -> A,
+    compensation: suspend (A) -> Unit
+  ): A =
+    guaranteeCase({ action(SagaActionStep) }) { res ->
       // This action failed, so we have no compensate to push on the stack
       // the compensation stack will run in the `transact` stage, this is just the builder
       when (res) {
