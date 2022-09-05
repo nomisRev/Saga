@@ -2,7 +2,6 @@
 
 package io.github.nomisrev
 
-import arrow.fx.coroutines.parSequence
 import arrow.fx.coroutines.parTraverse
 import arrow.fx.coroutines.parZip
 import io.kotest.assertions.fail
@@ -22,7 +21,7 @@ class SagaSpec :
   StringSpec({
     "Saga returns action result" {
       checkAll(Arb.int()) { i ->
-        val saga = saga { i } compensate { fail("Doesn't run") }
+        val saga = saga({ i }) { fail("Doesn't run") }
         saga.transact() shouldBeExactly i
       }
     }
@@ -33,7 +32,7 @@ class SagaSpec :
       checkAll(Arb.int()) { i ->
         val compensation = CompletableDeferred<Int>()
         val saga = saga {
-          saga { i }.compensate { compensation.complete(it) }.bind()
+          saga({ i }) { compensation.complete(it) }
           throw SagaFailed()
         }
         shouldThrow<SagaFailed> { saga.transact() }
@@ -45,24 +44,21 @@ class SagaSpec :
       checkAll(Arb.int()) { i ->
         val compensation = CompletableDeferred<Int>()
         val saga = saga {
-          saga { i }.compensate { compensation.complete(it) }.bind()
-          saga { throw SagaFailed() }.compensate { fail("Doesn't run") }.bind()
+          saga({ i }) { compensation.complete(it) }
+          saga({ throw SagaFailed() }) { fail("Doesn't run") }
         }
         shouldThrow<SagaFailed> { saga.transact() }
         compensation.await() shouldBeExactly i
       }
     }
 
-    // kotlin.native.concurrent.InvalidMutabilityException: mutation attempt of frozen
-    // kotlin.Array@73a59a08
-    // https://github.com/Kotlin/kotlinx.coroutines/issues/462
     "Saga runs compensation in order & rethrows exception" {
       checkAll(Arb.int(), Arb.int()) { a, b ->
         val compensations = Channel<Int>(2)
         val saga = saga {
-          saga { a }.compensate { compensations.send(it) }.bind()
-          saga { b }.compensate { compensations.send(it) }.bind()
-          saga { throw SagaFailed() }.compensate { fail("Doesn't run") }.bind()
+          saga({ a }) { compensations.send(it) }
+          saga({ b }) { compensations.send(it) }
+          saga({ throw SagaFailed() }) { fail("Doesn't run") }
         }
         shouldThrow<SagaFailed> { saga.transact() }
         compensations.receive() shouldBeExactly b
@@ -77,9 +73,9 @@ class SagaSpec :
         val original = SagaFailed()
         val compensation = SagaFailed()
         val saga = saga {
-          saga { a }.compensate { compensationA.complete(it) }.bind()
-          saga {}.compensate { throw compensation }.bind()
-          saga { throw original }.compensate { fail("Doesn't run") }.bind()
+          saga({ a }) { compensationA.complete(it) }
+          saga({}) { throw compensation }
+          saga({ throw original }) { fail("Doesn't run") }
         }
         val res = shouldThrow<SagaFailed> { saga.transact() }
         res shouldBe original
@@ -94,8 +90,8 @@ class SagaSpec :
         val original = SagaFailed()
         val compensation = SagaFailed()
         val saga = saga {
-          saga { a }.compensate { compensationA.complete(it) }.bind()
-          saga {}.compensate { throw compensation }.bind()
+          saga({ a }) { compensationA.complete(it) }
+          saga({}) { throw compensation }
           throw original
         }
         val res = shouldThrow<SagaFailed> { saga.transact() }
@@ -107,32 +103,13 @@ class SagaSpec :
 
     "Saga can traverse" {
       checkAll(Arb.list(Arb.int())) { iis ->
-        iis.mapSaga { saga { it }.compensate { fail("Doesn't run") } }.transact() shouldBe iis
-      }
-    }
-
-    "Saga can sequence" {
-      checkAll(Arb.list(Arb.int())) { iis ->
-        iis.map { saga { it }.compensate { fail("Doesn't run") } }.sequence().transact() shouldBe
-          iis
+        saga { iis.map { saga({ it }) { fail("Doesn't run") } } }.transact() shouldBe iis
       }
     }
 
     "Saga can parTraverse" {
       checkAll(Arb.list(Arb.int())) { iis ->
-        saga { iis.parTraverse { saga { it }.compensate { fail("Doesn't run") }.bind() } }
-          .transact() shouldBe iis
-      }
-    }
-
-    "Saga can parSequence" {
-      checkAll(Arb.list(Arb.int())) { iis ->
-        saga {
-            iis
-              .map { suspend { saga { it }.compensate { fail("Doesn't run") }.bind() } }
-              .parSequence()
-          }
-          .transact() shouldBe iis
+        saga { iis.parTraverse { saga({ it }) { fail("Doesn't run") } } }.transact() shouldBe iis
       }
     }
 
@@ -143,20 +120,16 @@ class SagaSpec :
         val saga = saga {
           parZip(
             {
-              saga {
-                  latch.complete(Unit)
-                  a
-                }
-                .compensate { compensationA.complete(it) }
-                .bind()
+              saga({
+                latch.complete(Unit)
+                a
+              }) { compensationA.complete(it) }
             },
             {
-              saga {
-                  latch.await()
-                  throw SagaFailed()
-                }
-                .compensate { fail("Doesn't run") }
-                .bind()
+              saga({
+                latch.await()
+                throw SagaFailed()
+              }) { fail("Doesn't run") }
             }
           ) { _, _ -> }
         }
@@ -172,20 +145,16 @@ class SagaSpec :
         val saga = saga {
           parZip(
             {
-              saga {
-                  latch.await()
-                  throw SagaFailed()
-                }
-                .compensate { fail("Doesn't run") }
-                .bind()
+              saga({
+                latch.await()
+                throw SagaFailed()
+              }) { fail("Doesn't run") }
             },
             {
-              saga {
-                  latch.complete(Unit)
-                  a
-                }
-                .compensate { compensationB.complete(it) }
-                .bind()
+              saga({
+                latch.complete(Unit)
+                a
+              }) { compensationB.complete(it) }
             }
           ) { _, _ -> }
         }
