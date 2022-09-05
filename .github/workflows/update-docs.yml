@@ -24,7 +24,7 @@ jobs:
       - name: Dokka
         uses: gradle/gradle-build-action@v2.2.3
         with:
-          arguments: dokkaHtml --scan --full-stacktrace
+          arguments: cleanDocs dokkaHtml --scan --full-stacktrace
 
       - name: Push docs
         run: |
