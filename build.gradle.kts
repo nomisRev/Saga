@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.api.JavaVersion.VERSION_1_8
+import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -64,11 +65,39 @@ detekt {
   allRules = true
 }
 
-tasks.withType<Detekt>().configureEach {
-  reports {
-    html.required by true
-    sarif.required by true
-    txt.required by false
-    xml.required by false
+tasks {
+  withType<DokkaTask>().configureEach {
+    outputDirectory.set(rootDir.resolve("docs"))
+    moduleName.set("KotlinX Serialization JsonPath")
+    dokkaSourceSets {
+      named("commonMain") {
+        includes.from("README.md")
+        perPackageOption {
+          matchingRegex.set(".*\\.internal.*")
+          suppress.set(true)
+        }
+        externalDocumentationLink("https://kotlinlang.org/api/kotlinx.serialization/")
+        sourceLink {
+          localDirectory.set(file("src/commonMain/kotlin"))
+          remoteUrl.set(uri("https://github.com/nomisRev/kotlinx-serialization-jsonpath/tree/main/src/commonMain/kotlin").toURL())
+          remoteLineSuffix.set("#L")
+        }
+      }
+    }
+  }
+  
+  register<Delete>("cleanDocs") {
+    val folder = file("docs").also { it.mkdir() }
+    val docsContent = folder.listFiles().filter { it != folder }
+    delete(docsContent)
+  }
+  
+  withType<Detekt>().configureEach {
+    reports {
+      html.required by true
+      sarif.required by true
+      txt.required by false
+      xml.required by false
+    }
   }
 }
