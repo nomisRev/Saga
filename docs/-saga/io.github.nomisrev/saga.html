@@ -27,11 +27,11 @@ if(savedDarkMode === true){
     <div id="leftToggler"><span class="icon-toggler"></span></div>
     <div class="library-name">
             <a href="../../index.html">
-                    <span>KotlinX Serialization JsonPath</span>
+                    <span>Saga</span>
             </a>
     </div>
     <div>
-1.0.0-rc.1.0+2022-09-05T18-13-36-948049Z    </div>
+1.0.0-rc.1.1+2022-09-06T08-53-31-895655Z    </div>
     <div class="pull-right d-flex">
         <div class="filter-section" id="filter-section">
                 <button class="platform-tag platform-selector common-like" data-active="" data-filter=":dokkaHtml/commonMain">common</button>
@@ -45,8 +45,8 @@ if(savedDarkMode === true){
         <div id="sideMenu"></div>
     </div>
     <div id="main">
-<div class="main-content" id="content" pageIds="KotlinX Serialization JsonPath::io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration//788909594">
-  <div class="breadcrumbs"><a href="../../index.html">KotlinX Serialization JsonPath</a><span class="delimiter">/</span><a href="index.html">io.github.nomisrev</a><span class="delimiter">/</span><a href="saga.html">saga</a></div>
+<div class="main-content" id="content" pageIds="Saga::io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration//788909594">
+  <div class="breadcrumbs"><a href="../../index.html">Saga</a><span class="delimiter">/</span><a href="index.html">io.github.nomisrev</a><span class="delimiter">/</span><a href="saga.html">saga</a></div>
   <div class="cover ">
     <h1 class="cover"><span><span>saga</span></span></h1>
   </div>
@@ -54,22 +54,22 @@ if(savedDarkMode === true){
     <div class="platform-bookmarks-row" data-toggle-list="data-toggle-list"><button class="platform-bookmark common-like" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain" data-active="" data-toggle=":dokkaHtml/commonMain">common</button></div>
 <div class="content sourceset-depenent-content" data-active="" data-togglable=":dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="saga.html">A</a><span class="token operator">&gt; </span><a href="saga.html"><span class="token function">saga</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">noinline </span>block<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token keyword"></span><a href="-saga-effect/index.html">SagaEffect</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="saga.html">A</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="saga.html">A</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">The Saga builder which exposes the <a href="-saga-effect/bind.html">SagaEffect.bind</a>. The <code class="lang-kotlin">saga</code> builder uses the suspension system to run actions, and automatically register their compensating actions.</p><p class="paragraph">When the resulting <a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a> fails it will run all the required compensating actions, also when the <a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a> gets cancelled it will respect its compensating actions before returning.</p><p class="paragraph">By doing so we can guarantee that any transactional like operations made by the <a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a> will guarantee that it results in the correct state.</p><br><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><span class="token operator">&lt;</span><span class="token keyword"></span><a href="saga.html">A</a><span class="token operator">&gt; </span><a href="saga.html"><span class="token function">saga</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">action<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token keyword"></span><a href="-saga-action-step/index.html">SagaActionStep</a><span class="token punctuation">.</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="saga.html">A</a><span class="token punctuation">, </span></span><span class="parameter ">compensation<span class="token operator">: </span><span class="token keyword">suspend </span><span class="token punctuation">(</span><span class="token keyword"></span><a href="saga.html">A</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><span class="token keyword"></span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="saga.html">A</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">Create a lazy <a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a> that will only run when the <a href="index.html#1547626090%2FClasslikes%2F788909594">Saga</a> is invoked.</p></div>  </div>
   <h2 class="">Sources</h2>
-  <div class="table" data-togglable="Sources"><a data-name="-2093077366%2FSource%2F788909594" anchor-label="https://github.com/nomisRev/kotlinx-serialization-jsonpath/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L75" id="-2093077366%2FSource%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+  <div class="table" data-togglable="Sources"><a data-name="-2093077366%2FSource%2F788909594" anchor-label="https://github.com/nomisRev/Saga/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L75" id="-2093077366%2FSource%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
     <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
       <div class="main-subrow keyValue ">
         <div class=""><span class="inline-flex">
-            <div><a href="https://github.com/nomisRev/kotlinx-serialization-jsonpath/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L75">common source</a></div>
+            <div><a href="https://github.com/nomisRev/Saga/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L75">common source</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2093077366%2FSource%2F788909594"></span>
               <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
             </span></span></div>
         <div></div>
       </div>
     </div>
-<a data-name="-2093077366%2FSource%2F788909594" anchor-label="https://github.com/nomisRev/kotlinx-serialization-jsonpath/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L87" id="-2093077366%2FSource%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
+<a data-name="-2093077366%2FSource%2F788909594" anchor-label="https://github.com/nomisRev/Saga/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L87" id="-2093077366%2FSource%2F788909594" data-filterable-set=":dokkaHtml/commonMain"></a>
     <div class="table-row" data-filterable-current=":dokkaHtml/commonMain" data-filterable-set=":dokkaHtml/commonMain">
       <div class="main-subrow keyValue ">
         <div class=""><span class="inline-flex">
-            <div><a href="https://github.com/nomisRev/kotlinx-serialization-jsonpath/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L87">common source</a></div>
+            <div><a href="https://github.com/nomisRev/Saga/tree/main/src/commonMain/kotlin/io/github/nomisrev/Saga.kt#L87">common source</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2093077366%2FSource%2F788909594"></span>
               <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
             </span></span></div>

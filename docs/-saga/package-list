@@ -1,0 +1,17 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:io.github.nomisrev.internal////PointingToDeclaration/-saga/io.github.nomisrev.internal.html
+$dokka.location:io.github.nomisrev////PointingToDeclaration/-saga/io.github.nomisrev/index.html
+$dokka.location:io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaActionStep,TypeParam(bounds=[kotlin.Any?])]#kotlin.coroutines.SuspendFunction1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/-saga/io.github.nomisrev/saga.html
+$dokka.location:io.github.nomisrev//saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/-saga/io.github.nomisrev/saga.html
+$dokka.location:io.github.nomisrev//transact/kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/-saga/io.github.nomisrev/transact.html
+$dokka.location:io.github.nomisrev/SagaActionStep///PointingToDeclaration/-saga/io.github.nomisrev/-saga-action-step/index.html
+$dokka.location:io.github.nomisrev/SagaDSLMarker///PointingToDeclaration/-saga/io.github.nomisrev/-saga-d-s-l-marker/index.html
+$dokka.location:io.github.nomisrev/SagaDSLMarker/SagaDSLMarker/#/PointingToDeclaration/-saga/io.github.nomisrev/-saga-d-s-l-marker/-saga-d-s-l-marker.html
+$dokka.location:io.github.nomisrev/SagaEffect///PointingToDeclaration/-saga/io.github.nomisrev/-saga-effect/index.html
+$dokka.location:io.github.nomisrev/SagaEffect/bind/kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/-saga/io.github.nomisrev/-saga-effect/bind.html
+$dokka.location:io.github.nomisrev/SagaEffect/invoke/kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaEffect,TypeParam(bounds=[kotlin.Any?])]#/PointingToDeclaration/-saga/io.github.nomisrev/-saga-effect/invoke.html
+$dokka.location:io.github.nomisrev/SagaEffect/saga/#kotlin.coroutines.SuspendFunction1[io.github.nomisrev.SagaActionStep,TypeParam(bounds=[kotlin.Any?])]#kotlin.coroutines.SuspendFunction1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/-saga/io.github.nomisrev/-saga-effect/saga.html
+io.github.nomisrev
+io.github.nomisrev.internal
+
