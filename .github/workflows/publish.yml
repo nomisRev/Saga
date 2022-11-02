@@ -21,7 +21,7 @@ jobs:
   check:
     strategy:
       matrix:
-        os: [ 'macos-12', 'ubuntu-latest', 'windows-latest' ]
+        os: [ 'macos-latest', 'ubuntu-latest', 'windows-latest' ]
 
     outputs:
       saga-version: ${{ steps.get-saga-version.outputs.saga-version }}
@@ -63,7 +63,7 @@ jobs:
       SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
       SONATYPE_PWD: ${{ secrets.SONATYPE_PWD }}
 
-    runs-on: macos-12
+    runs-on: macos-latest
 
     steps:
       - name: Checkout the repo
