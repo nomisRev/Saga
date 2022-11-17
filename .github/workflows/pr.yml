@@ -35,13 +35,13 @@ jobs:
           java-version: 11
 
       - name: Build
-        uses: gradle/gradle-build-action@v2.3.2
+        uses: gradle/gradle-build-action@v2.3.3
         with:
           arguments: build --scan --full-stacktrace
 
       - name: Upload reports
         if: always()
-        uses: actions/upload-artifact@v3.1.0
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: 'reports-${{ matrix.os }}'
           path: '**/build/reports/**'
