@@ -9,7 +9,7 @@ kotlin = "1.7.21"
 kotlinBinaryCompatibilityValidator = "0.12.1"
 kover = "0.6.1"
 nexusPublish = "1.1.0"
-detekt = "1.21.0"
+detekt = "1.22.0"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
