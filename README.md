@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.nomisrev:saga:0.1.3")
+    implementation("io.github.nomisrev:Saga-jvm:1.0.1")
 }
 ```
 
