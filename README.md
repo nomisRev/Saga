@@ -48,11 +48,11 @@ suspend fun deletePayment(payment: Payment): Unit = println("Deleting $payment")
 suspend fun Payment.awaitSuccess(): Unit = throw RuntimeException("Payment Failed")
 
 suspend fun main() {
-	saga {
-		val order = saga(action = { createOrder() }, compensation = { ::deleteOrder })
-		val payment = saga(action = { createPayment(order) }, compensation = { ::deletePayment) })
-		payment.awaitSuccess()
-	}.transact()
+  saga { 
+    val order = saga(action = { createOrder() }, compensation = { ::deleteOrder })
+    val payment = saga(action = { createPayment(order) }, compensation = { ::deletePayment) })
+    payment.awaitSuccess()
+  }.transact()
 }
 
 // Deleting Payment(id=5753e9bb-248a-4385-8c9c-4a524e80c0f9, orderId=3a55ffab-a3f5-40a9-a2b3-681dc17b174e)
