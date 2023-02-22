@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.nomisrev:saga:0.1.3")
+    implementation("io.github.nomisrev:Saga:1.0.1")
 }
 ```
 
@@ -49,8 +49,8 @@ suspend fun Payment.awaitSuccess(): Unit = throw RuntimeException("Payment Faile
 
 suspend fun main() {
   saga {
-    val order = saga { createOrder() }.compensate(::deleteOrder).bind()
-    val payment = saga { createPayment(order) }.compensate(::deletePayment).bind()
+    val order = saga(action = { createOrder() }, compensation = { ::deleteOrder })
+    val payment = saga(action = { createPayment(order) }, compensation = { ::deletePayment) })
     payment.awaitSuccess()
   }.transact()
 }
