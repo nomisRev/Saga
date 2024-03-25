@@ -4,7 +4,7 @@ enableFeaturePreview("VERSION_CATALOGS")
 rootProject.name = "Saga"
 
 plugins {
-    id("com.gradle.enterprise") version "3.12"
+    id("com.gradle.enterprise") version "3.16.2"
 }
 
 dependencyResolutionManagement {
